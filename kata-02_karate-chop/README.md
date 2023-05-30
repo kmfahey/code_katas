@@ -1,4 +1,4 @@
-# CodeKata.com Kata #4: Data Munging
+# CodeKata.com Kata #2: Karate Chop
 
 ## Kata Source
 
