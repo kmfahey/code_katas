@@ -1,9 +1,11 @@
-# Kata Source
+# CodeKata.com Kata #4: Data Munging
+
+## Kata Source
 
 Kata is drawn from codekata.com. Original code kata webpage is visible
 [here](http://codekata.com/kata/kata02-karate-chop/).
 
-# Kata Text Selection
+## Kata Text Selection
 
 > A binary chop (sometimes called the more prosaic binary search) finds the
 > position of value in a sorted array of values. It achieves some efficiency
