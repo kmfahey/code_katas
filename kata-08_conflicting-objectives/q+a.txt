@@ -1,0 +1,41 @@
+Does making the program as fast as possible make it more or less readable?
+
+It reduces the readability somewhat. The major change is to the core algorithm,
+which as an algorithm isn't going to be very readable no matter *what* you do.
+The other change is to how the data is read in, but it's not an illogical or
+counterintuitive change.
+
+
+Does it make easier to extend?
+
+The efficiency-related changes didn't really intersect with the changes made
+to improve its extensibility. The maximally extensible script uses the same
+algorithm as the maximally efficient script and runs in about the same time.
+
+
+Does making the program readable make it slower or faster, flexible or rigid?
+
+Making it readable made it slower, since the naive version of the algorithm
+requires 530% as much time to run as the efficient algorithm. Making the
+algorithm efficient decreases readability.
+
+
+And does making it extendible make it more or less readable, slower or faster?
+
+Actually increases its readability, due to how I implement extensibility. It
+runs in the same time.
+
+
+Are any of these correlations stronger than others?
+
+Requiring readability of the algorithm was a major detriment. Requiring
+extensibility of the program actually improved its readability. The other
+correlations are negligible.
+
+
+What does this mean in terms of optimizations you may perform on the code you
+write?
+
+Refactoring naive procedural code to a simple functional form is a good move
+for improving the navigability of the code and should be done early, as it
+facilitates future development by signposting the code.
