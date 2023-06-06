@@ -1,24 +1,25 @@
-# CodingDojo.com Kata #2: Args
+# CodingDojo.com Kata #1: Anagram
 
 ## Kata Source
 
 Kata is drawn from codingdojo.com. Original code kata webpage is visible
-[here](https://codingdojo.org/kata/Args/).
+[here](https://codingdojo.org/kata/Anagram/).
 
-## Kata Partial Instructions
+## Kata Instructions
 
-> Most of us have had to parse command-line arguments from time to time. If we
-> don’t have a convenient utility, then we simply walk the array of strings
-> that is passed into the main function. There are several good utilities
-> available from various sources, but they probably don’t do exactly what we
-> want. So let’s write another one!
->
-> The arguments passed to the program consist of flags and values. Flags should
-> be one character, preceded by a minus sign. Each flag should have zero, or one
-> value associated with it.
->
-> You should write a parser for this kind of arguments. This parser takes a
-> schema detailing what arguments the program expects. The schema specifies the
-> number and types of flags and values the program expects.
+> ### Step 1
+> 
+> Write a program that generates all two-word anagrams of the string
+> “documenting”. You must focus on the readability of your code, and you must
+> not include any kind of documentations to it. The goal is to create a code that
+> everybody can read and understand easily.
+> 
+> Here’s a [word list](https://codingdojo.org/kata/word_list.txt) you might want
+> to use.
+> 
+> ### Step 2
+> 
+> Try to improve the performance of your solution but keep in mind that making
+> it faster affects readability. Continue to focus on readability first.
 
 See the above-linked page for full kata text.
