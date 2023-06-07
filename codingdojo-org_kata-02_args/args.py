@@ -3,6 +3,9 @@
 import re
 
 
+__all__ = ["CLArg_Parser"]
+
+
 class CLArg_Parser:
     __slots__ = "flags_schema", "flag_args", "nonflag_args", "nonflag_allowed"
 
@@ -15,10 +18,13 @@ class CLArg_Parser:
         self.nonflag_args = list()
         self.nonflag_allowed = nonflag_allowed
 
-    def add_flag_arg(self, flag, argtype=bool):
+    def add_flag(self, flag, argtype=bool):
         self.flags_schema[flag] = argtype
 
     def get_flags(self):
+        return list(self.flags_schema.keys())
+
+    def get_flags_set(self):
         return list(self.flag_args.keys())
 
     def get_flag_val(self, flag):
@@ -83,12 +89,12 @@ class CLArg_Parser:
             recurring_flag = next(iter(recurring_flags))
             raise ValueError(f"flag {recurring_flag} occurs more than once in commandline arguments")
         for flag, argval in arg_cluster_d.items():
-            self._cast_flag_args(flag, argval)
+            arg_cluster_d[flag] = self._cast_flag_arg(flag, argval)
         self.flag_args.update(arg_cluster_d)
 
     def add_single_flag(self, arg_flag, arg_vector):
         flag = arg_flag.rstrip("-")
-        if flags_schema[flag] is bool:
+        if self.flags_schema[flag] is bool:
             if len(arg_vector) and not arg_vector[0].startswith("-"):
                 raise ValueError(f"flag -{flag} doesn't take an argument (was passed the argument '{arg_vector[0]}'")
             self.flag_args[flag] = True
