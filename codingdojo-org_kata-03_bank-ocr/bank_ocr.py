@@ -23,11 +23,19 @@
 __all__ = ['text_to_numerals', 'checksum_acct_no']
 
 
+# Accepts a multi-line string comprised of a series of 4-line blocks, such
+# that lines 1-3 of the block is an OCRable block of digits expressed in
+# pseudo-7-segment display ASCII art text, and the 4th line is always empty.
+# Returns a series of 9-character numeric strings which are the numerals from
+# the input text decoded.
 def text_to_numerals(text_to_ocr):
     ocr_lines = _text_to_ocr_lines(text_to_ocr)
     numeral_strs = _ocr_lines_to_nums(ocr_lines)
     return numeral_strs
 
+# Partially processes the input text to text_to_numerals(). Breaks it into a
+# list of lists, where each inner list in the outer list contains the 3 lines to
+# OCR.
 def _text_to_ocr_lines(text_to_ocr):
     text_to_ocr_lines = text_to_ocr.split("\n")
     ocr_lines = [list() for _ in range(len(text_to_ocr_lines) // 4)]
@@ -38,49 +46,59 @@ def _text_to_ocr_lines(text_to_ocr):
         ocr_lines[ocr_lines_index].append(ocr_partial_line)
     return ocr_lines
 
+
+def _ocr_glyph_to_numeral(ocr_glyph):
+    match ocr_glyph:
+        case ['   ',
+              '  |',
+              '  |']:
+            return '1'
+        case [' _ ',
+              ' _|',
+              '|_ ']:
+            return '2'
+        case [' _ ',
+              ' _|',
+              ' _|']:
+            return '3'
+        case ['   ',
+              '|_|',
+              '  |']:
+            return '4'
+        case [' _ ',
+              '|_ ',
+              ' _|']:
+            return '5'
+        case [' _ ',
+              '|_ ',
+              '|_|']:
+            return '6'
+        case [' _ ',
+              '  |',
+              '  |']:
+            return '7'
+        case [' _ ',
+              '|_|',
+              '|_|']:
+            return '8'
+        case [' _ ',
+              '|_|',
+              ' _|']:
+            return '9'
+        case other:
+            return '?'
+
+
+# Finishes processing for text_to_numerals(). Scans the line triplets, reading
+# left-to-right in parallel, decoding the numerals and building a list of
+# account numbers.
 def _ocr_lines_to_nums(ocr_lines):
     ocr_numeral_strs = list()
     for ocr_line in ocr_lines:
         ocr_num_segments = list()
         for inner_index in range(9):
             ocr_line_segment = [ocr_line[outer_index][3*inner_index: 3*inner_index+3] for outer_index in range(3)]
-            match ocr_line_segment:
-                case ['   ',
-                      '  |',
-                      '  |']:
-                    ocr_num_segments.append('1')
-                case [' _ ',
-                      ' _|',
-                      '|_ ']:
-                    ocr_num_segments.append('2')
-                case [' _ ',
-                      ' _|',
-                      ' _|']:
-                    ocr_num_segments.append('3')
-                case ['   ',
-                      '|_|',
-                      '  |']:
-                    ocr_num_segments.append('4')
-                case [' _ ',
-                      '|_ ',
-                      ' _|']:
-                    ocr_num_segments.append('5')
-                case [' _ ',
-                      '|_ ',
-                      '|_|']:
-                    ocr_num_segments.append('6')
-                case [' _ ',
-                      '  |',
-                      '  |']:
-                    ocr_num_segments.append('7')
-                case [' _ ',
-                      '|_|',
-                      '|_|']:
-                    ocr_num_segments.append('8')
-                case [' _ ',
-                      '|_|',
-                      ' _|']:
-                    ocr_num_segments.append('9')
+            ocr_num_segments.append(_ocr_glyph_to_numeral(ocr_line_segment))
         ocr_numeral_strs.append("".join(ocr_num_segments))
     return ocr_numeral_strs
 
@@ -104,3 +122,4 @@ def _ocr_lines_to_nums(ocr_lines):
 
 def checksum_acct_no(acct_no_str):
     return sum((9-index)*int(acct_no_str[index]) for index in range(9)) % 11 == 0
+
