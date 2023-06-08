@@ -20,7 +20,7 @@
 # into actual account numbers.
 
 
-__all__ = ['text_to_numerals', 'checksum_acct_no']
+__all__ = ['text_to_numerals', 'checksum_acct_no', 'bulk_process_acct_no_text']
 
 
 # Accepts a multi-line string comprised of a series of 4-line blocks, such
@@ -49,6 +49,10 @@ def _text_to_ocr_lines(text_to_ocr):
 
 def _ocr_glyph_to_numeral(ocr_glyph):
     match ocr_glyph:
+        case [' _ ',
+              '| |',
+              '|_|']:
+            return '0'
         case ['   ',
               '  |',
               '  |']:
@@ -122,4 +126,31 @@ def _ocr_lines_to_nums(ocr_lines):
 
 def checksum_acct_no(acct_no_str):
     return sum((9-index)*int(acct_no_str[index]) for index in range(9)) % 11 == 0
+
+
+# User Story 3
+# 
+# Your boss is keen to see your results. He asks you to write out a file of your
+# findings, one for each input file, in this format:
+# 
+# 457508000
+# 664371495 ERR
+# 86110??36 ILL
+# 
+# ie the file has one account number per row. If some characters are illegible,
+# they are replaced by a ?. In the case of a wrong checksum, or illegible
+# number, this is noted in a second column indicating status.
+
+def bulk_process_acct_no_text(acct_no_text):
+    output = list()
+    acct_numbers = text_to_numerals(acct_no_text)
+    for acct_no_str in acct_numbers:
+        if "?" in acct_no_str:
+            output.append(f"{acct_no_str} ILL")
+        elif not checksum_acct_no(acct_no_str):
+            output.append(f"{acct_no_str} ERR")
+        else:
+            output.append(acct_no_str)
+    return "\n".join(output)
+
 
