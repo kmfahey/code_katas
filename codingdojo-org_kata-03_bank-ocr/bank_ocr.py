@@ -20,7 +20,7 @@
 # into actual account numbers.
 
 
-__all__ = ['text_to_numerals', 'checksum_acct_no', 'bulk_process_acct_no_text']
+__all__ = ['text_to_numerals', 'checksum_acct_no', 'bulk_process_acct_no_text', 'bulk_process_acct_no_text_2']
 
 
 # Accepts a multi-line string comprised of a series of 4-line blocks, such
@@ -30,8 +30,8 @@ __all__ = ['text_to_numerals', 'checksum_acct_no', 'bulk_process_acct_no_text']
 # the input text decoded.
 def text_to_numerals(text_to_ocr):
     ocr_lines = _text_to_ocr_lines(text_to_ocr)
-    numeral_strs = _ocr_lines_to_nums(ocr_lines)
-    return numeral_strs
+    acct_nos = _ocr_lines_to_nums(ocr_lines)
+    return acct_nos
 
 # Partially processes the input text to text_to_numerals(). Breaks it into a
 # list of lists, where each inner list in the outer list contains the 3 lines to
@@ -47,6 +47,8 @@ def _text_to_ocr_lines(text_to_ocr):
     return ocr_lines
 
 
+# Just a match/case statement that converts text segments to numbers. Done with
+# match/case because it's more readable.
 def _ocr_glyph_to_numeral(ocr_glyph):
     match ocr_glyph:
         case [' _ ',
@@ -89,7 +91,7 @@ def _ocr_glyph_to_numeral(ocr_glyph):
               '|_|',
               ' _|']:
             return '9'
-        case other:
+        case _:
             return '?'
 
 
@@ -97,14 +99,14 @@ def _ocr_glyph_to_numeral(ocr_glyph):
 # left-to-right in parallel, decoding the numerals and building a list of
 # account numbers.
 def _ocr_lines_to_nums(ocr_lines):
-    ocr_numeral_strs = list()
+    ocr_acct_nos = list()
     for ocr_line in ocr_lines:
         ocr_num_segments = list()
         for inner_index in range(9):
             ocr_line_segment = [ocr_line[outer_index][3*inner_index: 3*inner_index+3] for outer_index in range(3)]
             ocr_num_segments.append(_ocr_glyph_to_numeral(ocr_line_segment))
-        ocr_numeral_strs.append("".join(ocr_num_segments))
-    return ocr_numeral_strs
+        ocr_acct_nos.append("".join(ocr_num_segments))
+    return ocr_acct_nos
 
 
 # User Story 2
@@ -141,6 +143,8 @@ def checksum_acct_no(acct_no_str):
 # they are replaced by a ?. In the case of a wrong checksum, or illegible
 # number, this is noted in a second column indicating status.
 
+# Extracts account numbers from text, then marks them if they contains a
+# nonparsing number, or if they don't checksum, and returns marked-up output.
 def bulk_process_acct_no_text(acct_no_text):
     output = list()
     acct_numbers = text_to_numerals(acct_no_text)
@@ -154,3 +158,76 @@ def bulk_process_acct_no_text(acct_no_text):
     return "\n".join(output)
 
 
+# User Story 4
+# 
+# It turns out that often when a number comes back as ERR or ILL it is because
+# the scanner has failed to pick up on one pipe or underscore for one of the
+# figures. For example
+# 
+#     _  _  _  _  _  _     _ 
+# |_||_|| || ||_   |  |  ||_ 
+#   | _||_||_||_|  |  |  | _|
+# 
+# The 9 could be an 8 if the scanner had missed one |. Or the 0 could be an
+# 8. Or the 1 could be a 7. The 5 could be a 9 or 6. So your next task is to
+# look at numbers that have come back as ERR or ILL, and try to guess what they
+# should be, by adding or removing just one pipe or underscore. If there is
+# only one possible number with a valid checksum, then use that. If there are
+# several options, the status should be AMB. If you still can’t work out what
+# it should be, the status should be reported ILL.
+
+
+# Extracts account numbers from text, then marks them if they contains a
+# nonparsing number, or if they don't checksum, and returns marked-up output.
+#
+# Rewrite that un-refactors the code of text_to_numerals(). Tests each number
+# and attempts to "repair" it, assuming a missed character. Outputs the repaired
+# number if it's reachable, or marks it AMB if more than one number could
+# satisfy the constraints. Otherwise applies the ILL flag if it still has an
+# unparseable character, or the ERR flag if it doesn't checksum.
+def bulk_process_acct_no_text_2(acct_no_text):
+    ocr_lines = _text_to_ocr_lines(acct_no_text)
+    acct_nos = _ocr_lines_to_nums(ocr_lines)
+    for index, acct_no in enumerate(acct_nos):
+        if "?" in acct_no or not checksum_acct_no(acct_no):
+            repair_attempt = _repair_acct_no(ocr_lines[index])
+        if len(repair_attempt) == 1:
+            acct_nos[index] = (repair_attempt[0], "")
+        elif len(repair_attempt) > 1:
+            acct_nos[index] = (acct_no, "AMB")
+        elif "?" in acct_no:
+            acct_nos[index] = (acct_no, "ILL")
+        elif not checksum_acct_no(acct_no):
+            acct_nos[index] = (acct_no, "ERR")
+        else:
+            acct_nos[index] = (acct_no, "")
+    output = [acct_no + (" " + flag if flag else "") for acct_no, flag in acct_nos]
+    return output
+
+
+# Private function that applies an algorithm to try to repair an account number
+# that contains an illegible character or doesn't checksum. Generates all
+# possible permutations of the original glyphic text where a space is replaced
+# by either an underscore or pipe. Attempts to parse each one, and then checksum
+# it. Returns a list of all parsed numbers, with no illegible chars, that
+# checksummed.
+def _repair_acct_no(ocr_line):
+    space_indexes = list()
+    for outer_index in range(3):
+        space_indexes.append([inner_index
+                                for inner_index, character in enumerate(ocr_line[outer_index])
+                                    if character == " "])
+    space_coords = [(outer_index, inner_index)
+                        for outer_index in range(3)
+                            for inner_index in space_indexes[outer_index]]
+    ocr_line_permuts = list()
+    for outer_index, inner_index in space_coords:
+        for alternate_char in ("|", "_"):
+            ocr_line_permut = ocr_line.copy()
+            ocr_line_permut[outer_index] = (ocr_line_permut[outer_index][:inner_index]
+                                            + alternate_char
+                                            + ocr_line_permut[outer_index][inner_index+1:])
+            ocr_line_permuts.append(ocr_line_permut)
+    valid_acct_nos = list(filter(lambda acct_no: "?" not in acct_no and checksum_acct_no(acct_no),
+                                 _ocr_lines_to_nums(ocr_line_permuts)))
+    return valid_acct_nos
