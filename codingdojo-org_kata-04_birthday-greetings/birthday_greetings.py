@@ -31,23 +31,52 @@
 
 import csv
 import datetime
+import pytz
+import abc
 
 
-def instance_csv_reader(filename):
-    with open(filename, "r") as bdays_fh:
-        birthday_file_lines = list(bdays_fh)
-    csv_reader = csv.reader(birthday_file_lines, quotechar='"', delimiter=',', skipinitialspace=True,
-                                                 lineterminator='\n', quoting=csv.QUOTE_MINIMAL, doublequote=True)
-    return csv_reader
+class Friends_Data_Loader(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def __init__(self):
+        pass
 
 
-def csv_to_friends(csv_reader):
-    columns = next(csv_reader)
-    friend_dicts_l = [dict(zip(columns, csv_line)) for csv_line in csv_reader]
-    for friend_d in friend_dicts_l:
-        friend_d["date_of_birth"] = datetime.date(*map(int, friend_d["date_of_birth"].split("/")))
-    friend_objs = [Friend(**friend_d) for friend_d in friend_dicts_l]
-    return friend_objs
+class Csv_Reader(Friends_Data_Loader):
+    __slots__ = "reader", "columns"
+
+    def __init__(self, filename):
+        with open(filename, "r") as bdays_fh:
+            birthday_file_lines = list(bdays_fh)
+        self.reader = csv.reader(birthday_file_lines, quotechar='"', delimiter=',', skipinitialspace=True,
+                                                     lineterminator='\n', quoting=csv.QUOTE_MINIMAL, doublequote=True)
+        self.columns = next(self.reader)
+
+    def __iter__(self):
+        for line in self.reader:
+            line_d = dict(zip(self.columns, line))
+            yield line_d
+
+
+class Friends_List:
+    __slots__ = "_friend_objs",
+
+    def __init__(self):
+        self._friend_objs = list()
+
+    def add_friend(self, friend_d):
+        self._friend_objs.append(Friend(**friend_d))
+
+    def __iter__(self):
+        for friend_obj in self._friend_objs:
+            yield friend_obj
+
+    def friends_w_birthday_today(self):
+        retval = list()
+        todays_date = datetime.date.today()
+        for friend_obj in self._friend_objs:
+            if friend_obj.date_of_birth.day == todays_date.day and friend_obj.date_of_birth.month == todays_date.month:
+                retval.append(friend_obj)
+        return retval
 
 
 class Friend:
@@ -63,16 +92,49 @@ class Friend:
         return (f"Friend({repr(self.last_name)}, {repr(self.first_name)}, "
                         "{repr(self.date_of_birth)}, {repr(self.email)})")
 
-    def gen_bday_msg(self):
-        return f"Subject: Happy birthday!\nHappy birthday, dear {self.first_name}!\n"
+
+class Message(metaclass=abc.ABCMeta):
+    @abc.abstractproperty
+    def message_body(self):
+        pass
 
 
-class Birthday_Manager:
-    __slots__ = "friend_objs",
+class Mail_Message(Message):
+    __slots__ = "from_line", "to_line", "date_line", "subject_line", "message_body"
 
-    def __init__(self, friend_objs):
-        self.friend_objs = dict()
-        for friend_obj in friend_objs:
-            if friend_obj.date_of_birth not in self.friend_objs:
-                self.friend_objs[friend_obj.date_of_birth] = list()
-                self.friend_objs[friend_obj.date_of_birth].append(friend_obj)
+    def __init__(self, from_line, date_line, to_line, subject_line, message_body):
+        self.from_line = from_line
+        self.to_line = to_line
+        self.date_line = date_line
+        self.subject_line = subject_line
+        self.message_body = message_body
+
+
+class Message_Sender(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def gen_bday_msg(self, friend_obj):
+        pass
+
+    @abc.abstractmethod
+    def send_message(self, message_obj):
+        pass
+
+
+class Mail_Sender(Message_Sender):
+    def __init__(self, from_name, from_address):
+        pass
+
+    def gen_bday_msg(self, friend_obj):
+        timezone = pytz.timezone('America/Los_Angeles')
+        todays_dt = datetime.datetime.now(timezone)
+
+        from_line = f"From: {self.from_name} <{self.from_address}"
+        date_line = todays_dt.strftime("Date: %-m/%-d/%y %-I:%M (GMT%z)")
+        to_line = f"To: {friend_obj.first_name} {friend_obj.last_name} <{friend_obj.email}>"
+        subject_line = "Subject: Happy Birthday!"
+        message_body = f"Happy birthday, {friend_obj.first_name}!\n"
+
+        return Mail_Message(from_line, date_line, to_line, subject_line, message_body)
+
+    def send_message(self, message_obj):
+        return True
