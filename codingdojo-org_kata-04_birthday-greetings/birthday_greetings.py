@@ -54,12 +54,16 @@ def main():
 
     csv_loader = Csv_Loader(filename)
 
+    mail_sender = Mail_Sender("Fahey", "Kerne", "kernefahey@protonmail.com")
+
+    send_msgs_w_loader_and_sender(csv_loader, mail_sender)
+
+
+def send_msgs_w_loader_and_sender(loader_obj, sender_obj):
     friends_list = Friends_List()
-    friends_list.add_from_loader(csv_loader)
+    friends_list.add_from_loader(loader_obj)
 
     bday_today_friends = friends_list.friends_w_birthday_today()
-
-    sender_obj = Mail_Sender("Fahey", "Kerne", "kernefahey@protonmail.com")
 
     bday_msgs = [sender_obj.gen_bday_msg(friend_obj) for friend_obj in bday_today_friends]
 
@@ -173,7 +177,7 @@ class Mail_Sender(Message_Sender):
         timezone = pytz.timezone('America/Los_Angeles')
         todays_dt = datetime.datetime.now(timezone)
 
-        from_line = f"From: {self.from_first_name} {self.from_last_name} <{self.from_address}"
+        from_line = f"From: {self.from_first_name} {self.from_last_name} <{self.from_address}>"
         date_line = todays_dt.strftime("Date: %-m/%-d/%y %-I:%M (GMT%z)")
         to_line = f"To: {friend_obj.first_name} {friend_obj.last_name} <{friend_obj.email}>"
         subject_line = "Subject: Happy Birthday!"
