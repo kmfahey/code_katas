@@ -9,13 +9,14 @@ import re
 import sqlite3
 import tempfile
 
-from birthday_greetings import Mail_Sender, Csv_Loader, Mail_Message, SMS_Message, Sqlite_Loader, send_msgs_w_loader_and_sender
+from birthday_greetings import Csv_Loader, Mail_Message, Mail_Sender, SMS_Message, SMS_Sender, Sqlite_Loader, \
+        send_msgs_w_loader_and_sender
 
 
 # faker.Faker.phone_number() returns all kinds of phone numbers in different
 # formats including ones with extensions. That's not the set of phone numbers
-# that can receive SMS messages, so phoe number generation is done manually.
-AREA_CODES = (
+# that can receive SMS messages, so phone number generation is done manually.
+_AREA_CODES = (
     201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 212, 213, 214, 215, 216, 217, 218, 219, 220, 223, 224, 225, 226,
     227, 228, 229, 231, 234, 236, 239, 240, 242, 246, 248, 249, 250, 251, 252, 253, 254, 256, 260, 262, 263, 264, 267,
     268, 269, 270, 272, 274, 276, 279, 281, 283, 284, 289, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 312, 313,
@@ -38,6 +39,14 @@ AREA_CODES = (
     529, 533, 544, 566, 577, 588, 600, 622, 633, 700, 710, 800, 833, 844, 855, 866, 877, 888, 900)
 
 
+def _generate_phone_number():
+    area_code = str(random.choice(_AREA_CODES))
+    prefix = str(random.randint(1, 999)).zfill(3)
+    line_number = str(random.randint(1, 9999)).zfill(4)
+    phone_number = f"1 ({area_code}) {prefix}-{line_number}"
+    return phone_number
+
+
 # Generates random birthday data until the table contains 3 rows with the
 # same month and day as the system current date. Chooses name and birthday at
 # random using faker. Typically generates between 200 and 4000 rows.
@@ -52,10 +61,7 @@ def generate_testing_data(w_header=True):
         first_name = faker_obj.first_name()
         date_of_birth = faker_obj.date_between_dates(datetime.date(1990,1,1), datetime.date(2022,12,31))
         email = f"{first_name.lower()}.{last_name.lower()}@example.org"
-        phone_number = "1 ({area_code}) {prefix}-{line_number}".format(
-            area_code=str(random.choice(AREA_CODES)),
-            prefix=str(random.randint(1, 999)).zfill(3),
-            line_number=str(random.randint(1, 9999)).zfill(3))
+        phone_number = _generate_phone_number()
         table.append([last_name, first_name, date_of_birth, email, phone_number])
     for row in table:
         row[2] = row[2].strftime("%Y/%m/%d")
@@ -64,92 +70,135 @@ def generate_testing_data(w_header=True):
     return table
 
 
-def test_send_msgs_csv_loader_mail_sender(mocker):
+def _prep_csv_loader_obj(tempfile_name):
+    with open(tempfile_name, "w") as tempfile_obj:
+        for row in generate_testing_data():
+            print(*row, sep=", ", file=tempfile_obj)
+
+    with open(tempfile_name, "r") as tempfile_obj:
+        return Csv_Loader(tempfile_name)
+
+
+def _prep_sqlite_loader_obj(tempfile_name):
+    db_conx = sqlite3.connect(tempfile_name)
+    db_curs = db_conx.cursor()
+    db_curs.execute("""CREATE TABLE IF NOT EXISTS birthdays (
+                            last_name VARCHAR(64),
+                            first_name VARCHAR(64),
+                            date_of_birth VARCHAR(10),
+                            email VARCHAR(64),
+                            phone_number VARCHAR(25)
+                       );""")
+    table = generate_testing_data(w_header=False)
+    for last_name, first_name, date_of_birth, email, phone_number in table:
+        year, month, day = date_of_birth.split('/')
+        db_curs.execute(f"""INSERT INTO birthdays (last_name, first_name, date_of_birth, email, phone_number)
+                            VALUES ('{last_name}', '{first_name}', '{year}-{month}-{day}',
+                                    '{email}', '{phone_number}');""")
+        db_conx.commit()
+    return Sqlite_Loader(tempfile_name)
+
+
+def _prep_mail_sender_obj():
     faker_obj = faker.Faker()
+    test_last_name = faker_obj.last_name()
+    test_first_name = faker_obj.first_name()
+    test_email = f"{test_first_name.lower()}.{test_last_name.lower()}@example.org"
+    return Mail_Sender(test_last_name, test_first_name, test_email)
+
+
+def _prep_sms_sender_obj():
+    from_phone_number = _generate_phone_number()
+    return SMS_Sender(from_phone_number)
+
+
+def _test_mail_sender_assertions(message_objs_sent):
+    assert len(message_objs_sent) == 3 and all(isinstance(obj, Mail_Message) for obj in message_objs_sent)
+    assert all(re.match(r"^From: \w+ \w+ <\w+\.\w+@example.org>$", message_obj.from_line)
+               for message_obj in message_objs_sent)
+    assert all(re.match(r"^Date: \d+/\d+/\d+ \d+:\d+ \([^)]+\)$", message_obj.date_line)
+               for message_obj in message_objs_sent)
+    assert all(re.match(r"^To: \w+ \w+ <\w+\.\w+@example.org>$", message_obj.to_line)
+               for message_obj in message_objs_sent)
+    assert all(message_obj.subject_line == "Subject: Happy Birthday!" for message_obj in message_objs_sent)
+    assert all(re.match(r"Happy birthday, \w+!\n", message_obj.message_body)
+               for message_obj in message_objs_sent)
+
+
+def _test_sms_sender_assertions(message_objs_sent):
+    assert len(message_objs_sent) == 3 and all(isinstance(obj, SMS_Message) for obj in message_objs_sent)
+    assert all(re.match(r"^1 \(\d{3}\) \d{3}-\d{4}", message_obj.from_number)
+               for message_obj in message_objs_sent)
+    assert all(re.match(r"^1 \(\d{3}\) \d{3}-\d{4}", message_obj.to_number)
+               for message_obj in message_objs_sent)
+    assert all(re.match(r"Happy birthday, \w+!\n", message_obj.message_body)
+               for message_obj in message_objs_sent)
+
+
+def test_send_msgs_csv_loader_mail_sender(mocker):
     _, tempfile_name = tempfile.mkstemp(suffix=".csv")
     try:
-        with open(tempfile_name, "w") as tempfile_obj:
-            for row in generate_testing_data():
-                print(*row, sep=", ", file=tempfile_obj)
-
-        with open(tempfile_name, "r") as tempfile_obj:
-            loader_obj = Csv_Loader(tempfile_name)
-
-            test_last_name = faker_obj.last_name()
-            test_first_name = faker_obj.first_name()
-            test_email = f"{test_first_name.lower()}.{test_last_name.lower()}@example.org"
-            sender_obj = Mail_Sender(test_last_name, test_first_name, test_email)
-
-            message_objs_sent = list()
-
-            def test_send_message(self, message_obj):
-                message_objs_sent.append(message_obj)
-
-            mocker.patch("birthday_greetings.Mail_Sender.send_message", test_send_message)
-
-            send_msgs_w_loader_and_sender(loader_obj, sender_obj)
-
-            assert len(message_objs_sent) == 3 and all(isinstance(obj, Mail_Message) for obj in message_objs_sent)
-            assert all(re.match(r"^From: \w+ \w+ <\w+\.\w+@example.org>$", message_obj.from_line)
-                       for message_obj in message_objs_sent)
-            assert all(re.match(r"^Date: \d+/\d+/\d+ \d+:\d+ \([^)]+\)$", message_obj.date_line)
-                       for message_obj in message_objs_sent)
-            assert all(re.match(r"^To: \w+ \w+ <\w+\.\w+@example.org>$", message_obj.to_line)
-                       for message_obj in message_objs_sent)
-            assert all(message_obj.subject_line == "Subject: Happy Birthday!" for message_obj in message_objs_sent)
-            assert all(re.match(r"Happy birthday, \w+!\n", message_obj.message_body)
-                       for message_obj in message_objs_sent)
-    finally:
-        os.unlink(tempfile_name)
-
-
-def test_send_msgs_sqlite_loader_mail_sender(mocker):
-    faker_obj = faker.Faker()
-    _, tempfile_name = tempfile.mkstemp(suffix=".db")
-    try:
-        tempfile_name = "birthdays2_sqlite.db"
-        db_conx = sqlite3.connect(tempfile_name)
-        db_curs = db_conx.cursor()
-        db_curs.execute("""CREATE TABLE IF NOT EXISTS birthdays (
-                                last_name VARCHAR(64),
-                                first_name VARCHAR(64),
-                                date_of_birth VARCHAR(10),
-                                email VARCHAR(64),
-                                phone_number VARCHAR(25)
-                           );""")
-        table = generate_testing_data(w_header=False)
-        for last_name, first_name, date_of_birth, email, phone_number in table:
-            year, month, day = date_of_birth.split('/')
-            db_curs.execute(f"""INSERT INTO birthdays (last_name, first_name, date_of_birth, email, phone_number)
-                                VALUES ('{last_name}', '{first_name}', '{year}-{month}-{day}', '{email}', '{phone_number}');""")
-            db_conx.commit()
-        loader_obj = Sqlite_Loader(tempfile_name)
-
-        test_last_name = faker_obj.last_name()
-        test_first_name = faker_obj.first_name()
-        test_email = f"{test_first_name.lower()}.{test_last_name.lower()}@example.org"
-        sender_obj = Mail_Sender(test_last_name, test_first_name, test_email)
-
+        loader_obj = _prep_csv_loader_obj(tempfile_name)
+        sender_obj = _prep_mail_sender_obj()
         message_objs_sent = list()
 
         def test_send_message(self, message_obj):
             message_objs_sent.append(message_obj)
 
         mocker.patch("birthday_greetings.Mail_Sender.send_message", test_send_message)
-
         send_msgs_w_loader_and_sender(loader_obj, sender_obj)
-
-        assert len(message_objs_sent) == 3 and all(isinstance(obj, Mail_Message) for obj in message_objs_sent)
-        assert all(re.match(r"^From: \w+ \w+ <\w+\.\w+@example.org>$", message_obj.from_line)
-                   for message_obj in message_objs_sent)
-        assert all(re.match(r"^Date: \d+/\d+/\d+ \d+:\d+ \([^)]+\)$", message_obj.date_line)
-                   for message_obj in message_objs_sent)
-        assert all(re.match(r"^To: \w+ \w+ <\w+\.\w+@example.org>$", message_obj.to_line)
-                   for message_obj in message_objs_sent)
-        assert all(message_obj.subject_line == "Subject: Happy Birthday!" for message_obj in message_objs_sent)
-        assert all(re.match(r"Happy birthday, \w+!\n", message_obj.message_body)
-                   for message_obj in message_objs_sent)
+        _test_mail_sender_assertions(message_objs_sent)
     finally:
         os.unlink(tempfile_name)
 
+
+def test_send_msgs_sqlite_loader_mail_sender(mocker):
+    _, tempfile_name = tempfile.mkstemp(suffix=".db")
+    try:
+        loader_obj = _prep_sqlite_loader_obj(tempfile_name)
+        sender_obj = _prep_mail_sender_obj()
+        message_objs_sent = list()
+
+        def test_send_message(self, message_obj):
+            message_objs_sent.append(message_obj)
+
+        mocker.patch("birthday_greetings.Mail_Sender.send_message", test_send_message)
+        send_msgs_w_loader_and_sender(loader_obj, sender_obj)
+        _test_mail_sender_assertions(message_objs_sent)
+    finally:
+        os.unlink(tempfile_name)
+
+
+def test_send_msgs_csv_loader_sms_sender(mocker):
+    _, tempfile_name = tempfile.mkstemp(suffix=".csv")
+    try:
+        loader_obj = _prep_csv_loader_obj(tempfile_name)
+        sender_obj = _prep_sms_sender_obj()
+        message_objs_sent = list()
+
+        def test_send_message(self, message_obj):
+            message_objs_sent.append(message_obj)
+
+        mocker.patch("birthday_greetings.SMS_Sender.send_message", test_send_message)
+        send_msgs_w_loader_and_sender(loader_obj, sender_obj)
+        _test_sms_sender_assertions(message_objs_sent)
+    finally:
+        os.unlink(tempfile_name)
+
+
+def test_send_msgs_sqlite_loader_sms_sender(mocker):
+    _, tempfile_name = tempfile.mkstemp(suffix=".csv")
+    try:
+        loader_obj = _prep_sqlite_loader_obj(tempfile_name)
+        sender_obj = _prep_sms_sender_obj()
+        message_objs_sent = list()
+
+        def test_send_message(self, message_obj):
+            message_objs_sent.append(message_obj)
+
+        mocker.patch("birthday_greetings.SMS_Sender.send_message", test_send_message)
+        send_msgs_w_loader_and_sender(loader_obj, sender_obj)
+        _test_sms_sender_assertions(message_objs_sent)
+    finally:
+        os.unlink(tempfile_name)
 

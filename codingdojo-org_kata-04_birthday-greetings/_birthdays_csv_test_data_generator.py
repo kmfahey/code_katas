@@ -16,14 +16,14 @@ print("birthdays2.csv created")
 
 print(f"{len(table)-1} rows saved")
 
-db_name = "birthdays2_sqlite.db"
+db_file_name = "birthdays2_sqlite.db"
 
-if not os.path.exists(db_name):
-    db_conx = sqlite3.connect(db_name)
-    print(f"{db_name} created")
+if not os.path.exists(db_file_name):
+    db_conx = sqlite3.connect(db_file_name)
+    print(f"{db_file_name} created")
 else:
-    db_conx = sqlite3.connect(db_name)
-    print(f"{db_name} connected to")
+    db_conx = sqlite3.connect(db_file_name)
+    print(f"{db_file_name} connected to")
 
 db_curs = db_conx.cursor()
 
