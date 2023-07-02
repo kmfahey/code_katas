@@ -6,9 +6,10 @@ import os
 import os.path
 import random
 import re
+import sqlite3
 import tempfile
 
-from birthday_greetings import Mail_Sender, Csv_Loader, Mail_Message, send_msgs_w_loader_and_sender
+from birthday_greetings import Mail_Sender, Csv_Loader, Mail_Message, SMS_Message, Sqlite_Loader, send_msgs_w_loader_and_sender
 
 
 # faker.Faker.phone_number() returns all kinds of phone numbers in different
@@ -40,7 +41,7 @@ AREA_CODES = (
 # Generates random birthday data until the table contains 3 rows with the
 # same month and day as the system current date. Chooses name and birthday at
 # random using faker. Typically generates between 200 and 4000 rows.
-def generate_testing_data():
+def generate_testing_data(w_header=True):
     faker_obj = faker.Faker()
     table = list()
     today = datetime.date.today()
@@ -58,11 +59,12 @@ def generate_testing_data():
         table.append([last_name, first_name, date_of_birth, email, phone_number])
     for row in table:
         row[2] = row[2].strftime("%Y/%m/%d")
-    table.insert(0, ["last_name", "first_name", "date_of_birth", "email", "phone_number"])
+    if w_header:
+        table.insert(0, ["last_name", "first_name", "date_of_birth", "email", "phone_number"])
     return table
 
 
-def test_send_msgs_w_loader_and_sender(mocker):
+def test_send_msgs_csv_loader_mail_sender(mocker):
     faker_obj = faker.Faker()
     _, tempfile_name = tempfile.mkstemp(suffix=".csv")
     try:
@@ -99,3 +101,55 @@ def test_send_msgs_w_loader_and_sender(mocker):
                        for message_obj in message_objs_sent)
     finally:
         os.unlink(tempfile_name)
+
+
+def test_send_msgs_sqlite_loader_mail_sender(mocker):
+    faker_obj = faker.Faker()
+    _, tempfile_name = tempfile.mkstemp(suffix=".db")
+    try:
+        tempfile_name = "birthdays2_sqlite.db"
+        db_conx = sqlite3.connect(tempfile_name)
+        db_curs = db_conx.cursor()
+        db_curs.execute("""CREATE TABLE IF NOT EXISTS birthdays (
+                                last_name VARCHAR(64),
+                                first_name VARCHAR(64),
+                                date_of_birth VARCHAR(10),
+                                email VARCHAR(64),
+                                phone_number VARCHAR(25)
+                           );""")
+        table = generate_testing_data(w_header=False)
+        for last_name, first_name, date_of_birth, email, phone_number in table:
+            year, month, day = date_of_birth.split('/')
+            db_curs.execute(f"""INSERT INTO birthdays (last_name, first_name, date_of_birth, email, phone_number)
+                                VALUES ('{last_name}', '{first_name}', '{year}-{month}-{day}', '{email}', '{phone_number}');""")
+            db_conx.commit()
+        loader_obj = Sqlite_Loader(tempfile_name)
+
+        test_last_name = faker_obj.last_name()
+        test_first_name = faker_obj.first_name()
+        test_email = f"{test_first_name.lower()}.{test_last_name.lower()}@example.org"
+        sender_obj = Mail_Sender(test_last_name, test_first_name, test_email)
+
+        message_objs_sent = list()
+
+        def test_send_message(self, message_obj):
+            message_objs_sent.append(message_obj)
+
+        mocker.patch("birthday_greetings.Mail_Sender.send_message", test_send_message)
+
+        send_msgs_w_loader_and_sender(loader_obj, sender_obj)
+
+        assert len(message_objs_sent) == 3 and all(isinstance(obj, Mail_Message) for obj in message_objs_sent)
+        assert all(re.match(r"^From: \w+ \w+ <\w+\.\w+@example.org>$", message_obj.from_line)
+                   for message_obj in message_objs_sent)
+        assert all(re.match(r"^Date: \d+/\d+/\d+ \d+:\d+ \([^)]+\)$", message_obj.date_line)
+                   for message_obj in message_objs_sent)
+        assert all(re.match(r"^To: \w+ \w+ <\w+\.\w+@example.org>$", message_obj.to_line)
+                   for message_obj in message_objs_sent)
+        assert all(message_obj.subject_line == "Subject: Happy Birthday!" for message_obj in message_objs_sent)
+        assert all(re.match(r"Happy birthday, \w+!\n", message_obj.message_body)
+                   for message_obj in message_objs_sent)
+    finally:
+        os.unlink(tempfile_name)
+
+
