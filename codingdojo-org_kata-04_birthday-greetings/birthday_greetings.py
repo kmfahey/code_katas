@@ -29,12 +29,13 @@
 # 
 # What kind of tests would you write? Would you use Mocks?
 
+import abc
 import csv
 import datetime
-import pytz
-import abc
-import sys
 import os.path
+import pytz
+import sqlite3
+import sys
 
 
 def main():
@@ -78,20 +79,36 @@ class Data_Loader(metaclass=abc.ABCMeta):
 
 
 class Csv_Loader(Data_Loader):
-    __slots__ = "reader", "columns"
+    __slots__ = "columns", "rows"
 
     def __init__(self, filename):
         with open(filename, "r") as bdays_fh:
-            birthday_file_lines = list(bdays_fh)
-        self.reader = csv.reader(birthday_file_lines, quotechar='"', delimiter=',', skipinitialspace=True,
+            birthday_file_rows = list(bdays_fh)
+        reader = csv.reader(birthday_file_rows, quotechar='"', delimiter=',', skipinitialspace=True,
                                                      lineterminator='\n', quoting=csv.QUOTE_MINIMAL, doublequote=True)
-        self.columns = next(self.reader)
+        self.columns = next(reader)
+        self.rows = [dict(zip(self.columns, row)) for row in reader]
+        for row_d in self.rows:
+            row_d["date_of_birth"] = datetime.date(*map(int, row_d["date_of_birth"].split('/')))
 
     def __iter__(self):
-        for line in self.reader:
-            line_d = dict(zip(self.columns, line))
-            line_d["date_of_birth"] = datetime.date(*map(int, line_d["date_of_birth"].split('/')))
-            yield line_d
+        return iter(self.rows)
+
+
+class Sqlite_Loader(Data_Loader):
+    __slots__ = "connection", "cursor"
+
+    def __init__(self, filename):
+        self.connection = sqlite3.connect(filename)
+        self.cursor = self.connection.cursor()
+
+    def __iter__(self):
+        results = self.cursor.execute("SELECT last_name, first_name, date_of_birth, email FROM birthdays;")
+        row = results.fetchone()
+        while row is not None:
+            row_d = dict(last_name=row[0], first_name=row[1], date_of_birth=row[2], email=row[3])
+            row_d["date_of_birth"] = datetime.date(*map(int, row_d["date_of_birth"].split('/')))
+            yield row_d
 
 
 class Friends_List:
@@ -121,24 +138,38 @@ class Friends_List:
 
 
 class Friend:
-    __slots__ = "last_name", "first_name", "date_of_birth", "email"
+    __slots__ = "last_name", "first_name", "date_of_birth", "email", "phone_number"
 
-    def __init__(self, last_name, first_name, date_of_birth, email):
+    def __init__(self, last_name, first_name, date_of_birth, email, phone_number):
         if not isinstance(date_of_birth, datetime.date):
             raise ValueError("date_of_birth argument to Friend constructor must be a datetime.date object")
         self.last_name = last_name
         self.first_name = first_name
         self.date_of_birth = date_of_birth
         self.email = email
+        self.phone_number = phone_number
 
     def __repr__(self):
-        return (f"Friend({repr(self.last_name)}, {repr(self.first_name)}, {repr(self.date_of_birth)}, {repr(self.email)})")
+        return "Friend({args})".format(args=", ".join(map(repr, (self.last_name, self.first_name, self.date_of_birth,
+                                                                 self.email, self.phone_number))))
 
 
 class Message(metaclass=abc.ABCMeta):
     @abc.abstractproperty
     def message_body(self):
         pass
+
+
+class SMS_Message(Message):
+    __slots__ = "from_number", "to_number", "message_body"
+
+    def __init__(self, from_number, to_number, message_body):
+        self.from_number = from_number
+        self.to_number = to_number
+        self.message_body = message_body
+
+    def __repr__(self):
+        return f"SMS_Message({repr(self.from_number)}, {repr(self.to_number)}, {repr(self.message_body)})"
 
 
 class Mail_Message(Message):
@@ -152,7 +183,8 @@ class Mail_Message(Message):
         self.message_body = message_body
 
     def __repr__(self):
-        return f"Mail_Message({repr(self.from_line)}, {repr(self.date_line)}, {repr(self.to_line)}, {repr(self.subject_line)}, {repr(self.message_body)})"
+        return "Mail_Message({args})".format(args=", ".join(map(repr, (self.from_line, self.date_line, self.to_line,
+                                                                       self.subject_line, self.message_body))))
 
 
 class Message_Sender(metaclass=abc.ABCMeta):
@@ -187,6 +219,20 @@ class Mail_Sender(Message_Sender):
 
     def send_message(self, message_obj):
         print(f"Sending message {repr(message_obj)}.")
+
+
+class SMS_Sender(Message_Sender):
+    __slots__ = "from_number",
+
+    def __init__(self, from_number):
+        self.from_number = from_number
+
+    def gen_bday_msg(self, friend_obj):
+        from_number = self.from_number
+        to_number = friend_obj.phone_number
+        message_body = f"Happy birthday, {friend_obj.first_name}!\n"
+
+        return SMS_Message(from_number, to_number, message_body)
 
 
 if __name__ == "__main__":
