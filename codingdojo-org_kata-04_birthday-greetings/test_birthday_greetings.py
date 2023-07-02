@@ -70,7 +70,7 @@ def generate_testing_data(w_header=True):
     return table
 
 
-def _prep_csv_loader_obj(tempfile_name):
+def prep_csv_loader_obj(tempfile_name):
     with open(tempfile_name, "w") as tempfile_obj:
         for row in generate_testing_data():
             print(*row, sep=", ", file=tempfile_obj)
@@ -79,7 +79,7 @@ def _prep_csv_loader_obj(tempfile_name):
         return Csv_Loader(tempfile_name)
 
 
-def _prep_sqlite_loader_obj(tempfile_name):
+def prep_sqlite_loader_obj(tempfile_name):
     db_conx = sqlite3.connect(tempfile_name)
     db_curs = db_conx.cursor()
     db_curs.execute("""CREATE TABLE IF NOT EXISTS birthdays (
@@ -99,7 +99,7 @@ def _prep_sqlite_loader_obj(tempfile_name):
     return Sqlite_Loader(tempfile_name)
 
 
-def _prep_mail_sender_obj():
+def prep_mail_sender_obj():
     faker_obj = faker.Faker()
     test_last_name = faker_obj.last_name()
     test_first_name = faker_obj.first_name()
@@ -107,7 +107,7 @@ def _prep_mail_sender_obj():
     return Mail_Sender(test_last_name, test_first_name, test_email)
 
 
-def _prep_sms_sender_obj():
+def prep_sms_sender_obj():
     from_phone_number = _generate_phone_number()
     return SMS_Sender(from_phone_number)
 
@@ -138,8 +138,8 @@ def _test_sms_sender_assertions(message_objs_sent):
 def test_send_msgs_csv_loader_mail_sender(mocker):
     _, tempfile_name = tempfile.mkstemp(suffix=".csv")
     try:
-        loader_obj = _prep_csv_loader_obj(tempfile_name)
-        sender_obj = _prep_mail_sender_obj()
+        loader_obj = prep_csv_loader_obj(tempfile_name)
+        sender_obj = prep_mail_sender_obj()
         message_objs_sent = list()
 
         def test_send_message(self, message_obj):
@@ -155,8 +155,8 @@ def test_send_msgs_csv_loader_mail_sender(mocker):
 def test_send_msgs_sqlite_loader_mail_sender(mocker):
     _, tempfile_name = tempfile.mkstemp(suffix=".db")
     try:
-        loader_obj = _prep_sqlite_loader_obj(tempfile_name)
-        sender_obj = _prep_mail_sender_obj()
+        loader_obj = prep_sqlite_loader_obj(tempfile_name)
+        sender_obj = prep_mail_sender_obj()
         message_objs_sent = list()
 
         def test_send_message(self, message_obj):
@@ -172,8 +172,8 @@ def test_send_msgs_sqlite_loader_mail_sender(mocker):
 def test_send_msgs_csv_loader_sms_sender(mocker):
     _, tempfile_name = tempfile.mkstemp(suffix=".csv")
     try:
-        loader_obj = _prep_csv_loader_obj(tempfile_name)
-        sender_obj = _prep_sms_sender_obj()
+        loader_obj = prep_csv_loader_obj(tempfile_name)
+        sender_obj = prep_sms_sender_obj()
         message_objs_sent = list()
 
         def test_send_message(self, message_obj):
@@ -189,8 +189,8 @@ def test_send_msgs_csv_loader_sms_sender(mocker):
 def test_send_msgs_sqlite_loader_sms_sender(mocker):
     _, tempfile_name = tempfile.mkstemp(suffix=".csv")
     try:
-        loader_obj = _prep_sqlite_loader_obj(tempfile_name)
-        sender_obj = _prep_sms_sender_obj()
+        loader_obj = prep_sqlite_loader_obj(tempfile_name)
+        sender_obj = prep_sms_sender_obj()
         message_objs_sent = list()
 
         def test_send_message(self, message_obj):
