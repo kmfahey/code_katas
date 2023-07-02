@@ -73,21 +73,25 @@ def send_msgs_w_loader_and_sender(loader_obj, sender_obj):
 
 
 class Data_Loader(metaclass=abc.ABCMeta):
+
+    columns = "last_name", "first_name", "date_of_birth", "email", "phone_number"
+
     @abc.abstractmethod
     def __init__(self):
         pass
 
 
 class Csv_Loader(Data_Loader):
-    __slots__ = "columns", "rows"
+    __slots__ = "rows",
 
     def __init__(self, filename):
         with open(filename, "r") as bdays_fh:
             birthday_file_rows = list(bdays_fh)
         reader = csv.reader(birthday_file_rows, quotechar='"', delimiter=',', skipinitialspace=True,
                                                      lineterminator='\n', quoting=csv.QUOTE_MINIMAL, doublequote=True)
-        self.columns = next(reader)
-        self.rows = [dict(zip(self.columns, row)) for row in reader]
+        reader_iter = iter(reader)
+        next(reader_iter)
+        self.rows = [dict(zip(self.columns, row)) for row in reader_iter]
         for row_d in self.rows:
             row_d["date_of_birth"] = datetime.date(*map(int, row_d["date_of_birth"].split('/')))
 
@@ -96,19 +100,18 @@ class Csv_Loader(Data_Loader):
 
 
 class Sqlite_Loader(Data_Loader):
-    __slots__ = "connection", "cursor"
+    __slots__ = "connection", "cursor", "rows"
 
     def __init__(self, filename):
         self.connection = sqlite3.connect(filename)
         self.cursor = self.connection.cursor()
+        self.cursor.execute("SELECT " + ", ".join(self.columns) + " FROM birthdays;")
+        self.rows = [dict(zip(self.columns, row)) for row in self.cursor]
+        for row_d in self.rows:
+            row_d["date_of_birth"] = datetime.date(*map(int, row_d["date_of_birth"].split('-')))
 
     def __iter__(self):
-        results = self.cursor.execute("SELECT last_name, first_name, date_of_birth, email FROM birthdays;")
-        row = results.fetchone()
-        while row is not None:
-            row_d = dict(last_name=row[0], first_name=row[1], date_of_birth=row[2], email=row[3])
-            row_d["date_of_birth"] = datetime.date(*map(int, row_d["date_of_birth"].split('/')))
-            yield row_d
+        return iter(self.rows)
 
 
 class Friends_List:
@@ -218,7 +221,7 @@ class Mail_Sender(Message_Sender):
         return Mail_Message(from_line, date_line, to_line, subject_line, message_body)
 
     def send_message(self, message_obj):
-        print(f"Sending message {repr(message_obj)}.")
+        print(f"Sending mail message {repr(message_obj)}.")
 
 
 class SMS_Sender(Message_Sender):
@@ -233,6 +236,10 @@ class SMS_Sender(Message_Sender):
         message_body = f"Happy birthday, {friend_obj.first_name}!\n"
 
         return SMS_Message(from_number, to_number, message_body)
+
+    def send_message(self, message_obj):
+        print(f"Sending SMS message {repr(message_obj)}.")
+
 
 
 if __name__ == "__main__":
