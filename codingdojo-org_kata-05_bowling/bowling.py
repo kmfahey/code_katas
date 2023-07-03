@@ -47,6 +47,8 @@ class Frame:
         elif self.frame_number == 9:
             if self.next_frame.is_strike:
                 score += 10 + self.next_frame.bonus_1st
+            elif self.next_frame.is_spare:
+                score += 10
             else:
                 score += self.next_frame.score_1st + self.next_frame.score_2nd
         else:
@@ -54,24 +56,20 @@ class Frame:
                 score += 10
                 if self.next_frame.next_frame.is_strike:
                     score += 10
-                elif self.next_frame.next_frame.score_1st != "-":
+                else:
                     score += self.next_frame.next_frame.score_1st
+            elif self.next_frame.is_spare:
+                score += 10
             else:
-                score += self.next_frame.score_1st
+                score += self.next_frame.score_1st + self.next_frame.score_2nd
         return score
 
     def _calc_is_spare_score(self):
         score = 10
         if self.frame_number == 10:
-            if self.bonus_1st == "X":
-                score += 10
-            elif self.bonus_1st != "-":
-                score += int(self.bonus_1st)
+            score += self.bonus_1st
         else:
-            if self.next_frame.is_strike:
-                score += 10
-            elif self.next_frame.score_1st != "-":
-                score += self.next_frame.score_1st
+            score += self.next_frame.score_1st
         return score
 
     def _calc_is_open_frame_score(self):
@@ -99,6 +97,7 @@ class Scoreboard:
         frame_obj = self.frame_objs[frame_index]
         if scoring[0] == "X":
             frame_obj.is_strike = True
+            frame_obj.score_1st = 10
             if frame_index == 9:
                 frame_obj.bonus_1st = 10 if scoring[1] == "X" else 0 if scoring[1] == "-" else int(scoring[1])
                 frame_obj.bonus_2nd = 10 if scoring[2] == "X" else 0 if scoring[2] == "-" else int(scoring[2])
