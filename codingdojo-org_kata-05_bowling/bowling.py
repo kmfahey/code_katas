@@ -5,7 +5,7 @@ __all__ = "total_scores", "Frame", "Scoreboard"
 
 def total_scores(scoring_1, scoring_2, scoring_3, scoring_4, scoring_5,
                  scoring_6, scoring_7, scoring_8, scoring_9, scoring_10):
-    # This is unlovely, but since there must be exactly 10 scoring strings, it
+    # This is unlovely, but since there must be exactly 10 scoring tuples, it
     # seems better to let python's own function signature enforcement handle it
     # than manually length-test an *argl variable.
     scoring_tpl = (scoring_1, scoring_2, scoring_3, scoring_4, scoring_5,
@@ -18,53 +18,74 @@ def total_scores(scoring_1, scoring_2, scoring_3, scoring_4, scoring_5,
 
 
 class Frame:
-    __slots__ = "frame_number", "score_1st", "score_2nd", "is_strike", "is_spare", "next_frame"
+    __slots__ = ("frame_number", "score_1st", "score_2nd", "bonus_1st", "bonus_2nd", "is_strike", "is_spare",
+                 "next_frame")
 
     def __init__(self, frame_number, score_1st=0, score_2nd=0, bonus_1st=0, bonus_2nd=0, is_strike=False,
                  is_spare=False, next_frame=None):
         self.frame_number = frame_number
         self.score_1st = score_1st
         self.score_2nd = score_2nd
+        self.bonus_1st = bonus_1st
+        self.bonus_2nd = bonus_2nd
         self.is_strike = is_strike
         self.is_spare = is_spare
         self.next_frame = next_frame
 
     def calc_score(self):
-        if self.is_strike:                                                  # if the frame is a strike
-            score = 10                                                      #  then the base score is 10
-            if self.frame_number == 10:                                     #  if it's the 10th frame
-                                                                            #  it'll have two bonus rolls.
-                score += self.bonus_1st if self.bonus_1st != "X" else 10    #   add the bonus roll scores
-                score += self.bonus_2nd if self.bonus_2nd != "X" else 10    #   adding 10 where one is a strike
-            elif self.frame_number == 9:                                    #  elif it's the 9th frame
-                if self.next_frame.is_spare:                                #   if the 10th frame is a spare
-                    score += 10                                             #    add 10
-                else:                                                       #   else
-                    score += self.next_frame.score_1st                      #    add the first 2 scores 
-                    score += self.next_frame.score_2nd                      #    from the 10th frame
-            else:                                                           #  else
-                if self.next_frame.is_strike:                               #   if the next frame was a strike
-                    if self.next_frame.next_frame.is_strike:                #    if the following frame's a strike
-                        score += 20                                         #     then add 20
-                    else:                                                   #    else
-                        score += 10                                         #     then add 10
-                        score += self.next_frame.next_frame.score_1st       #     plus following frame's 1st score
-                elif self.next_frame.is_spare:                              #   elif the next frame was a spare
-                    score += 10                                             #    then add 10
-                else:                                                       #   else
-                    score += self.next_frame.score_1st                      #    then add the next
-                    score += self.next_frame.score_2nd                      #    frame's two scores
-        elif self.is_spare:                                                 # elif the frame is a spare
-            score = 10                                                      #  then the base score is 10
-            if self.frame_number == 10:                                     #  if it's the 10th frame
-                score += self.bonus_1st if self.bonus_1st != "X" else 10    #   it'll have one bonus roll
-                                                                            #   add the score from the bonus roll
-            else:                                                           #  else
-                score += self.next_frame.score_1st                          #   add the next frame's 1st roll
-        else:                                                               # else
-            score = self.score_1st                                          #  the frame is open; the score is the 
-            score += self.score_2nd                                         #  1st roll plus the 2nd roll
+        if self.is_strike:
+            return self._calc_is_strike_score()
+        elif self.is_spare:
+            return self._calc_is_spare_score()
+        else:
+            return self._calc_is_open_frame_score()
+
+    def _calc_is_strike_score(self):
+        score = 10
+        if self.frame_number == 10:
+            score += self.bonus_1st + self.bonus_2nd
+        elif self.frame_number == 9:
+            if self.next_frame.is_strike:
+                score += 10 + self.next_frame.bonus_1st
+            else:
+                score += self.next_frame.score_1st + self.next_frame.score_2nd
+        else:
+            if self.next_frame.is_strike:
+                score += 10
+                if self.next_frame.next_frame.is_strike:
+                    score += 10
+                elif self.next_frame.next_frame.score_1st != "-":
+                    score += self.next_frame.next_frame.score_1st
+            else:
+                score += self.next_frame.score_1st
         return score
+
+    def _calc_is_spare_score(self):
+        score = 10
+        if self.frame_number == 10:
+            if self.bonus_1st == "X":
+                score += 10
+            elif self.bonus_1st != "-":
+                score += int(self.bonus_1st)
+        else:
+            if self.next_frame.is_strike:
+                score += 10
+            elif self.next_frame.score_1st != "-":
+                score += self.next_frame.score_1st
+        return score
+
+    def _calc_is_open_frame_score(self):
+        score = self.score_1st + self.score_2nd
+        return score
+
+    def __repr__(self):
+        return ("Frame(frame_number={frame_number}, score_1st={score_1st}, score_2nd={score_2nd}, "
+                       "bonus_1st={bonus_1st}, bonus_2nd={bonus_2nd}, is_strike={is_strike}, "
+                       "is_spare={is_spare}, next_frame=<next_frame>)"
+                ).format(frame_number=repr(self.frame_number), score_1st=repr(self.score_1st),
+                         score_2nd=repr(self.score_2nd), bonus_1st=repr(self.bonus_1st),
+                         bonus_2nd=repr(self.bonus_2nd), is_strike=repr(self.is_strike),
+                         is_spare=repr(self.is_spare))
 
 
 class Scoreboard:
@@ -75,21 +96,23 @@ class Scoreboard:
 
     def update_from_scoring(self, frame_number, scoring):
         frame_index = frame_number - 1
-        frame_obj = self.frames[frame_index]
+        frame_obj = self.frame_objs[frame_index]
         if scoring[0] == "X":
-            frame_obj.is_tplike = True
+            frame_obj.is_strike = True
             if frame_index == 9:
-                frame_obj.bonus_1st = 10 if scoring[1] == "X" else int(scoring[1])
-                frame_obj.bonus_2nd = 10 if scoring[2] == "X" else int(scoring[2])
+                frame_obj.bonus_1st = 10 if scoring[1] == "X" else 0 if scoring[1] == "-" else int(scoring[1])
+                frame_obj.bonus_2nd = 10 if scoring[2] == "X" else 0 if scoring[2] == "-" else int(scoring[2])
         elif scoring[1] == "/":
             frame_obj.is_spare = True
+            frame_obj.score_1st = 0 if scoring[0] == "-" else int(scoring[0])
             if frame_index == 9:
-                frame_obj.bonus_1st = 10 if scoring[2] == "X" else int(scoring[2])
+                frame_obj.bonus_1st = 10 if scoring[2] == "X" else 0 if scoring[2] == "-" else int(scoring[2])
         else:
-            frame_obj.score_1st = int(scoring[0])
-            frame_obj.score_2nd = int(scoring[1])
+            frame_obj.score_1st = 0 if scoring[0] == "-" else int(scoring[0])
+            frame_obj.score_2nd = 0 if scoring[1] == "-" else int(scoring[1])
         if frame_index != 9:
             frame_obj.next_frame = self.frame_objs[frame_index + 1]
 
     def calc_score(self):
-        return sum(frame_obj.calc_score() for frame_obj in self.frames)
+        scores = [frame_obj.calc_score() for frame_obj in self.frame_objs]
+        return sum(scores)
