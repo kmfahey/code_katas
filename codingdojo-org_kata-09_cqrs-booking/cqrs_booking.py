@@ -5,6 +5,9 @@ from datetime import date
 from dataclasses import dataclass
 
 
+__all__ = "Room", "Booking", "Bookings_Register"
+
+
 # Making the Room class immutable so objects of it can be used as dict keys.
 # Doesn't seem to have any other applications and is arguably surplus to
 # requirements. But it was in the instructions so I included it. Probably of
