@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
-from datetime import date, timedelta
+import attr
 
-from dataclasses import dataclass
+from datetime import date, timedelta
 
 
 __all__ = "Room", "Booking", "Bookings_Register"
@@ -13,18 +13,49 @@ __all__ = "Room", "Booking", "Bookings_Register"
 # requirements. But it was in the instructions so I included it. Probably of
 # more use in other languages that the author of this kata was thinking in when
 # they wrote it.
-@dataclass(frozen=True)
+
+@attr.s(frozen=True)
 class Room:
-    room_number: int
+    @staticmethod
+    def _room_number_validator(self, attribute, room_number):
+        if room_number < 100:
+            raise ValueError("value for room_number must be 100 or greater")
+        # The tallest hotel yet built is the Gevora hotel in the UAE, which has
+        # 75 floors. 100 floors (times up to 100 rooms per floor) seems like a
+        # reasonable maximum for room_number.
+        elif room_number > 10099:
+            raise ValueError("value for room_number must be less than 10099")
+
+    room_number = attr.ib(type=int, validator=attr.validators.and_(attr.validators.instance_of(int), _room_number_validator))
 
 
 # Making the Booking class immutable so sets can be used with it.
-@dataclass(frozen=True)
+@attr.s(frozen=True)
 class Booking:
-    client_id: int
-    room_number: int
-    arrival_date: date
-    departure_date: date
+    @staticmethod
+    def _client_id_validator(self, attribute, client_id):
+        if client_id < 0:
+            raise ValueError("value for client_id must be greater than 0")
+        # The maximum value the C data type unsigned long long can have on a
+        # 64bit machine is 18446744073709551615. That seems like a reasonable
+        # maximum for a client_id.
+        elif client_id > 18446744073709551615:
+            raise ValueError("value for client_id must be less than 18446744073709551616")
+
+    @staticmethod
+    def _date_validator(self, attribute, arrival_or_departure_date):
+        if arrival_or_departure_date < date.today():
+            raise ValueError(f"value for {attribute} must not be in the past")
+
+    client_id = attr.ib(type=int, validator=attr.validators.and_(attr.validators.instance_of(int), _client_id_validator))
+    room_number = attr.ib(type=int, validator=attr.validators.and_(attr.validators.instance_of(int), Room._room_number_validator))
+    arrival_date = attr.ib(type=int, validator=attr.validators.and_(attr.validators.instance_of(date), _date_validator))
+    departure_date = attr.ib(type=int, validator=attr.validators.and_(attr.validators.instance_of(date), _date_validator))
+
+    def __init__(self, *argl):
+       super().__init__(*argl)
+       if self.departure_date < self.arrival_date:
+           raise ValueError("value for departure_date must not be before value for arrival_date")
 
     # returns a list of every date between arrival_date and departure_date, inclusive
     def gen_dates_booked(self):

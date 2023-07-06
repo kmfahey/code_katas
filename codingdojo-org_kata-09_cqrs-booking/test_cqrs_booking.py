@@ -11,7 +11,7 @@ def test_room_class():
 
 def test_booking_class():
     today = date.today()
-    tomorrow = timedelta(days=1)
+    tomorrow = today + timedelta(days=1)
     booking_obj = Booking(216, 117, today, tomorrow)
     assert booking_obj.client_id == 216
     assert booking_obj.room_number == 117
