@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+import pytest
+
 from datetime import date, timedelta
 
 from cqrs_booking import *
@@ -44,5 +46,38 @@ def test_bookings_register_add_get_delete_booking_booked_rooms_free_rooms():
     bookings_reg_obj.delete_booking(room_number, today)
     assert room_number in bookings_reg_obj.get_free_room_numbers()
 
+def test_room_class_attr_usage():
+    with pytest.raises(ValueError):
+        room_obj = Room(-1)
+    with pytest.raises(ValueError):
+        room_obj = Room(65536)
+    with pytest.raises(TypeError):
+        room_obj = Room(3.14159)
 
+def test_booking_class_attr_usage_client_id_attr():
+    with pytest.raises(ValueError):
+        booking_obj = Booking(-1, 144, date.today(), date.today() + timedelta(days=1))
+    with pytest.raises(ValueError):
+        booking_obj = Booking(2**65, 144, date.today(), date.today() + timedelta(days=1))
+    with pytest.raises(TypeError):
+        booking_obj = Booking(3.14159, 144, date.today(), date.today() + timedelta(days=1))
 
+def test_booking_class_attr_usage_room_number_attr():
+    with pytest.raises(ValueError):
+        booking_obj = Booking(216, -1, date.today(), date.today() + timedelta(days=1))
+    with pytest.raises(ValueError):
+        booking_obj = Booking(216, 2**65, date.today(), date.today() + timedelta(days=1))
+    with pytest.raises(TypeError):
+        booking_obj = Booking(216, 3.14159, date.today(), date.today() + timedelta(days=1))
+
+def test_booking_class_attr_usage_arrival_date_attr():
+    with pytest.raises(ValueError):
+        booking_obj = Booking(216, 144, date.today() - timedelta(days=1), date.today() + timedelta(days=1))
+    with pytest.raises(TypeError):
+        booking_obj = Booking(216, 144, date.today().strftime("%-m/%-d/$y"), date.today() + timedelta(days=1))
+
+def test_booking_class_attr_usage_departure_date_attr():
+    with pytest.raises(ValueError):
+        booking_obj = Booking(216, 144, date.today(), date.today() - timedelta(days=1))
+    with pytest.raises(TypeError):
+        booking_obj = Booking(216, 144, date.today(), date.today().strftime("%-m/%-d/$y"))
