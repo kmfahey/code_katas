@@ -17,19 +17,61 @@ class Decorable(metaclass=abc.ABCMeta):
     def __init__(self):
         pass
 
+    @abc.abstractmethod
+    def __repr__(self):
+        pass
 
-class Cupcake(Decorable):
+    @abc.abstractmethod
+    def __str__(self):
+        pass
+
+
+class Pastry(Decorable):
+    def __repr__(self):
+        return f"{self.__class__.__name__}()"
+
+    def __str__(self):
+        return f"a {self.emoji}"
+
+
+class Cookie(Pastry):
+    price = 2.99
+    emoji = "🍪"
+
+    def __init__(self):
+        pass
+
+
+class Cupcake(Pastry):
     price = 1.99
     emoji = "🧁"
 
     def __init__(self):
         pass
 
-    def __repr__(self):
-        return "Cupcake()"
 
-    def __str__(self):
-        return f"a {self.emoji}"
+class Pie(Pastry):
+    price = 8.99
+    emoji = "🥧"
+
+    def __init__(self):
+        pass
+
+
+class Cake(Pastry):
+    price = 8.99
+    emoji = "🎂"
+
+    def __init__(self):
+        pass
+
+
+class Shortcake(Pastry):
+    price = 3.99
+    emoji = "🍰"
+
+    def __init__(self):
+        pass
 
 
 class Topping(Decorable):
@@ -101,3 +143,8 @@ class Chocolate(Topping):
 class Crumbled_Cookies(Topping):
     price = 0.19
     emoji = "🍪"
+
+
+class Nuts(Topping):
+    price = 0.19
+    emoji = "🥜"
