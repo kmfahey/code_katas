@@ -1,16 +1,10 @@
 #!/usr/bin/python3
 
 import abc
-# import re
+import re
 
 
 class Decorable(metaclass=abc.ABCMeta):
-    __slots__ = "price", "emoji"
-
-#    @property
-#    def all_cupc_tpg_emoji(self):
-#        return [subclass.emoji for subclass in type(self).__subclasses__() if not isinstance(subclass, abc.ABCMeta)]
-
     @abc.abstractproperty
     def emoji(self):
         pass
@@ -32,7 +26,7 @@ class Cupcake(Decorable):
         pass
 
     def __repr__(self):
-        return f"{self.__class__.__name__}()"
+        return "Cupcake()"
 
     def __str__(self):
         return f"a {self.emoji}"
@@ -47,12 +41,35 @@ class Topping(Decorable):
     def __str__(self):
         if isinstance(self.beneath_this, Cupcake):
             return str(self.beneath_this) + f" with {self.emoji}"
-        else:
-            # TODO: revamp this so at each recursive step it strips off any
-            # comma-separated list formatting created by the inner str() call
-            # and then applies a new comma-separated list formatting correct to
-            # the added topping.
-            return str(self.beneath_this) + f" and {self.emoji}"
+
+        # This block calls str() on beneath_this. The regexes parse the current
+        # stack of emoji out of the result, then builds a new grammatically
+        # correct comma-separated list with this object's emoji attached and
+        # returns them. This happens on each step of the recursive str() call so
+        # the retval is always grammatically correct in case this __str__ call
+        # is the outermost in the decorator stack.
+
+        inner_str = str(self.beneath_this)
+        matched_one = re.search("(🧁) with ([🍮 🍯 🍬 🍪 🍫])$", inner_str)
+        if matched_one:
+            cupcake = matched_one.group(1)
+            emoji = [self.emoji, matched_one.group(2)]
+            return f"{cupcake} with {emoji[0]} and {emoji[1]}"
+
+        matched_two = re.search("(🧁) with ([🍮 🍯 🍬 🍪 🍫] and [🍮 🍯 🍬 🍪 🍫])$", inner_str)
+        if matched_two:
+            cupcake = matched_two.group(1)
+            emoji = [self.emoji] + matched_two.group(2).split(" and ")
+            return f"{cupcake} with {emoji[0]}, {emoji[1]}, and {emoji[2]}"
+
+        matched_many = re.search("(🧁) with ((?:[🍮 🍯 🍬 🍪 🍫], )+and [🍮 🍯 🍬 🍪 🍫])$", inner_str)
+        if matched_many:
+            cupcake = matched_many.group(1)
+            emoji = [self.emoji] + re.split(", and |, |and", matched_many.group(2))
+            toppings = ", ".join(emoji[:-1] + ["and " + emoji[-1]])
+            return f"{cupcake} with {toppings}"
+
+        raise RuntimeError("Can't happen error: none of the regexes matched the text from inner str() call.")
 
     def __repr__(self):
         return f"{self.__class__.__name__}({repr(self.beneath_this)})"
@@ -78,9 +95,9 @@ class Crushed_Candy(Topping):
 
 class Chocolate(Topping):
     price = 0.79
-    emoji = "🍫 "
+    emoji = "🍫"
 
 
 class Crumbled_Cookies(Topping):
     price = 0.19
-    emoji = "🍪 "
+    emoji = "🍪"
