@@ -22,20 +22,22 @@ class Decorable(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def __str__(self):
+    def name(self):
         pass
 
+
+### Pastry ABC & Pastry subclasses
 
 class Pastry(Decorable):
     def __repr__(self):
         return f"{self.__class__.__name__}()"
 
-    def __str__(self):
+    def name(self):
         return f"a {self.emoji}"
 
 
 class Cookie(Pastry):
-    price = 2.99
+    price = 3.00
     emoji = "🍪"
 
     def __init__(self):
@@ -43,7 +45,7 @@ class Cookie(Pastry):
 
 
 class Cupcake(Pastry):
-    price = 1.99
+    price = 2.00
     emoji = "🧁"
 
     def __init__(self):
@@ -51,7 +53,7 @@ class Cupcake(Pastry):
 
 
 class Pie(Pastry):
-    price = 8.99
+    price = 9.00
     emoji = "🥧"
 
     def __init__(self):
@@ -59,7 +61,7 @@ class Pie(Pastry):
 
 
 class Cake(Pastry):
-    price = 8.99
+    price = 9.00
     emoji = "🎂"
 
     def __init__(self):
@@ -67,12 +69,14 @@ class Cake(Pastry):
 
 
 class Shortcake(Pastry):
-    price = 3.99
+    price = 4.00
     emoji = "🍰"
 
     def __init__(self):
         pass
 
+
+### Topping ABC & Topping subclasses
 
 class Topping(Decorable):
     __slots__ = "beneath_this",
@@ -80,7 +84,7 @@ class Topping(Decorable):
     def __init__(self, beneath_this):
         self.beneath_this = beneath_this
 
-    def __str__(self):
+    def name(self):
         if isinstance(self.beneath_this, Cupcake):
             return str(self.beneath_this) + f" with {self.emoji}"
 
@@ -88,7 +92,7 @@ class Topping(Decorable):
         # stack of emoji out of the result, then builds a new grammatically
         # correct comma-separated list with this object's emoji attached and
         # returns them. This happens on each step of the recursive str() call so
-        # the retval is always grammatically correct in case this __str__ call
+        # the retval is always grammatically correct in case this name() call
         # is the outermost in the decorator stack.
 
         inner_str = str(self.beneath_this)
@@ -121,30 +125,30 @@ class Topping(Decorable):
 
 
 class Honey(Topping):
-    price = 0.49
+    price = 0.50
     emoji = "🍯"
 
 
 class Whipped_Custard(Topping):
-    price = 0.59
+    price = 0.60
     emoji = "🍮"
 
 
 class Crushed_Candy(Topping):
-    price = 0.49
+    price = 0.50
     emoji = "🍬"
 
 
 class Chocolate(Topping):
-    price = 0.79
+    price = 0.10
     emoji = "🍫"
 
 
 class Crumbled_Cookies(Topping):
-    price = 0.19
+    price = 0.20
     emoji = "🍪"
 
 
 class Nuts(Topping):
-    price = 0.19
+    price = 0.10
     emoji = "🥜"
