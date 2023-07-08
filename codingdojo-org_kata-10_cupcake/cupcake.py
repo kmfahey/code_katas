@@ -5,6 +5,14 @@ import re
 
 
 class Decorable(metaclass=abc.ABCMeta):
+    @classmethod
+    def _all_emoji(self):
+        emoji_list = []
+        for subclass in self.__subclasses__():
+            if hasattr(subclass, "_emoji"):
+                emoji_list.append(subclass._emoji)
+        return emoji_list
+
     _emoji = abc.abstractproperty(lambda s: None)
 
     _cost = abc.abstractproperty(lambda s: None)
@@ -21,9 +29,13 @@ class Decorable(metaclass=abc.ABCMeta):
 ### Pastry ABC & Pastry subclasses
 
 class Pastry(Decorable):
+    @classmethod
+    def _all_pastry_emoji(self):
+        return self._all_emoji()
+
     @property
     def name(self):
-        return f"a {self._emoji}"
+        return self._emoji
 
     @property
     def price(self):
@@ -78,6 +90,10 @@ class Shortcake(Pastry):
 class Topping(Decorable):
     __slots__ = "contents",
 
+    @classmethod
+    def _all_topping_emoji(self):
+        return self._all_emoji()
+
     def __init__(self, contents):
         self.contents = contents
 
@@ -97,20 +113,27 @@ class Topping(Decorable):
         # the retval is always grammatically correct in case this name() call
         # is the outermost in the decorator stack.
 
+        all_topping_emoji = ''.join(Topping._all_topping_emoji())
+        all_pastry_emoji = ''.join(Pastry._all_pastry_emoji())
+
+        name_w_one_topping_re = re.compile(f"([{all_pastry_emoji}]) with ([{all_topping_emoji}])$")
+        name_w_two_toppings_re = re.compile(f"([{all_pastry_emoji}]) with ([{all_topping_emoji}] and [{all_topping_emoji}])$")
+        name_w_many_toppings_re = re.compile(f"([{all_pastry_emoji}]) with ((?:[{all_topping_emoji}], )+and [{all_topping_emoji}])$")
+
         inner_str = self.contents.name
-        matched_one = re.search("(🧁) with ([🍮 🍯 🍬 🍪 🍫])$", inner_str)
+        matched_one = name_w_one_topping_re.search(inner_str)
         if matched_one:
             cupcake = matched_one.group(1)
             emoji = [self._emoji, matched_one.group(2)]
             return f"{cupcake} with {emoji[0]} and {emoji[1]}"
 
-        matched_two = re.search("(🧁) with ([🍮 🍯 🍬 🍪 🍫] and [🍮 🍯 🍬 🍪 🍫])$", inner_str)
+        matched_two = name_w_two_toppings_re.search(inner_str)
         if matched_two:
             cupcake = matched_two.group(1)
             emoji = [self._emoji] + matched_two.group(2).split(" and ")
             return f"{cupcake} with {emoji[0]}, {emoji[1]}, and {emoji[2]}"
 
-        matched_many = re.search("(🧁) with ((?:[🍮 🍯 🍬 🍪 🍫], )+and [🍮 🍯 🍬 🍪 🍫])$", inner_str)
+        matched_many = name_w_many_toppings_re.search(inner_str)
         if matched_many:
             cupcake = matched_many.group(1)
             emoji = [self._emoji] + re.split(", and |, |and", matched_many.group(2))
@@ -149,5 +172,5 @@ class Crumbled_Cookies(Topping):
 
 
 class Nuts(Topping):
-    _cost = 0.10
+    _cost = 0.20
     _emoji = "🥜"
