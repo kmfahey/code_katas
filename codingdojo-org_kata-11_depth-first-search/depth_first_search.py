@@ -57,3 +57,16 @@ def dfs(graph, this_node, adj_nodes_func):
             for other_node in adj_nodes_func(graph, this_node):
                 stack.append(other_node)
     return list(seen.keys())
+
+# recursive (not yet functional)
+# def recurs_dfs(graph, this_node, adj_nodes_func):
+#     stack = list()
+#     seen = OrderedDict()
+#     def _dfs(node):
+#         retval = [node]
+#         seen[node] = True
+#         for other_node in adj_nodes_func(graph, node):
+#             if other_node not in seen:
+#                 retval.extend(_dfs(other_node))
+#         return sorted(retval, reverse=True)
+#     return _dfs(this_node)
