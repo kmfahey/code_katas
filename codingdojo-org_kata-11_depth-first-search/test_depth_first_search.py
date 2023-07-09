@@ -11,17 +11,47 @@ from depth_first_search import *
 # always traverse the neighboring nodes in reverse order from highest-numbered
 # to lowest-numbered.
 
+one_node_dfs_trav = [1]
+two_nodes_dfs_trav = [1, 2]
+maze_2x2_dfs_trav = [1, 3, 4, 2]
+binary_tree_dfs_trav = [1, 3, 7, 6, 2, 5, 4]
+maze_3x3_dfs_trav = [1, 2, 5, 8, 9, 6, 7, 4, 3]
+
 def test_dfs_adj_mx():
-    one_node_dfs_results = dfs(one_node_adjmx, 1, adjmx_adjacent_nodes)
-    two_node_dfs_results = dfs(two_node_adjmx, 1, adjmx_adjacent_nodes)
-    maze_2x2_dfs_results = dfs(maze_2x2_adjmx, 1, adjmx_adjacent_nodes)
-    binary_tree_dfs_results = dfs(binary_tree_adjmx, 1, adjmx_adjacent_nodes)
-    maze_3x3_dfs_results = dfs(maze_3x3_adjmx, 1, adjmx_adjacent_nodes)
-    assert one_node_dfs_results == [1]
-    assert two_node_dfs_results == [1, 2]
-    assert maze_2x2_dfs_results == [1, 3, 4, 2]
-    assert binary_tree_dfs_results == [1, 3, 7, 6, 2, 5, 4]
-    assert maze_3x3_dfs_results == [1, 2, 5, 8, 9, 6, 7, 4, 3]
+    assert dfs(one_node_adjmx, 1, adjmx_adjacent_nodes) == one_node_dfs_trav
+    assert dfs(two_nodes_adjmx, 1, adjmx_adjacent_nodes) == two_nodes_dfs_trav
+    assert dfs(maze_2x2_adjmx, 1, adjmx_adjacent_nodes) == maze_2x2_dfs_trav
+    assert dfs(binary_tree_adjmx, 1, adjmx_adjacent_nodes) == binary_tree_dfs_trav
+    assert dfs(maze_3x3_adjmx, 1, adjmx_adjacent_nodes) == maze_3x3_dfs_trav
+
+def test_dfs_adjl():
+    assert dfs(one_node_adjl, 1, adjl_adjacent_nodes) == one_node_dfs_trav
+    assert dfs(two_nodes_adjl, 1, adjl_adjacent_nodes) == two_nodes_dfs_trav
+    assert dfs(maze_2x2_adjl, 1, adjl_adjacent_nodes) == maze_2x2_dfs_trav
+    assert dfs(binary_tree_adjl, 1, adjl_adjacent_nodes) == binary_tree_dfs_trav
+    assert dfs(maze_3x3_adjl, 1, adjl_adjacent_nodes) == maze_3x3_dfs_trav
+
+def test_dfs_edgl():
+    assert dfs(one_node_edgl, 1, edgl_adjacent_nodes) == one_node_dfs_trav
+    assert dfs(two_nodes_edgl, 1, edgl_adjacent_nodes) == two_nodes_dfs_trav
+    assert dfs(maze_2x2_edgl, 1, edgl_adjacent_nodes) == maze_2x2_dfs_trav
+    assert dfs(binary_tree_edgl, 1, edgl_adjacent_nodes) == binary_tree_dfs_trav
+    assert dfs(maze_3x3_edgl, 1, edgl_adjacent_nodes) == maze_3x3_dfs_trav
+
+def test_dfs_incmx():
+    assert dfs(one_node_incmx, 1, incmx_adjacent_nodes) == one_node_dfs_trav
+    assert dfs(two_nodes_incmx, 1, incmx_adjacent_nodes) == two_nodes_dfs_trav
+    assert dfs(maze_2x2_incmx, 1, incmx_adjacent_nodes) == maze_2x2_dfs_trav
+    assert dfs(binary_tree_incmx, 1, incmx_adjacent_nodes) == binary_tree_dfs_trav
+    assert dfs(maze_3x3_incmx, 1, incmx_adjacent_nodes) == maze_3x3_dfs_trav
+
+def test_dfs_adjmap():
+    assert dfs(one_node_adjmap, 1, adjmap_adjacent_nodes) == one_node_dfs_trav
+    assert dfs(two_nodes_adjmap, 1, adjmap_adjacent_nodes) == two_nodes_dfs_trav
+    assert dfs(maze_2x2_adjmap, 1, adjmap_adjacent_nodes) == maze_2x2_dfs_trav
+    assert dfs(binary_tree_adjmap, 1, adjmap_adjacent_nodes) == binary_tree_dfs_trav
+    assert dfs(maze_3x3_adjmap, 1, adjmap_adjacent_nodes) == maze_3x3_dfs_trav
+
 
 # Using every form of graph representation except OO, so that I get experience
 # writing the same graph algorithm for each one.
@@ -41,28 +71,28 @@ one_node_edgl = []
 one_node_incmx = [[]]
 
 # adjacency map
-one_node_adjl = [{}]
+one_node_adjmap = [{}]
 
 
 # ADJACENCY MATRIXES
 
 # adjacency matrix
-two_node_adjmx = [[inf, 1],
+two_nodes_adjmx = [[inf, 1],
                   [1,   inf]]
 
 # adjacency list
-two_node_adjl = [[2],
+two_nodes_adjl = [[2],
                  [1]]
 
 # edge list
-two_node_edgl = [(1, 2)]
+two_nodes_edgl = [(1, 2)]
 
 # incidence matrix
-two_node_incmx = [[1],
+two_nodes_incmx = [[1],
                   [1]]
 
 # adjacency map
-two_node_adjl = [{2: True},
+two_nodes_adjmap = [{2: True},
                  {1: True}]
 
 
@@ -97,12 +127,13 @@ maze_2x2_edgl = [(1, 2),
 # 3 c 4
                  # edges
                  # a  b  c
-maze_2x2_incmx = [[1, 0, 0], # 1
-                  [1, 1, 0], # 2
-                  [0, 1, 1]] # 3
+maze_2x2_incmx = [[1, 1, 0], # 1
+                  [1, 0, 0], # 2
+                  [0, 1, 1], # 3
+                  [0, 0, 1]] # 4
 
 # adjacency map
-maze_2x2_adjl = [{2: True, 3: True},
+maze_2x2_adjmap = [{2: True, 3: True},
                  {1: True},
                  {1: True, 4: True},
                  {3: True}]
@@ -161,7 +192,7 @@ binary_tree_incmx = [[1, 1, 0, 0, 0, 0], # 1
 
 
 # adjacency map
-binary_tree_adjl = [{2: True, 3: True},
+binary_tree_adjmap = [{2: True, 3: True},
                     {1: True, 4: True, 5: True},
                     {1: True, 6: True, 7: True},
                     {2: True},
@@ -232,7 +263,7 @@ maze_3x3_incmx = [[1, 0, 0, 0, 0, 0, 0, 0, 0], # 1
 
 
 # adjacency map
-gaze_3x3_adjl = [{2: True},
+maze_3x3_adjmap = [{2: True},
                  {1: True, 3: True, 5: True},
                  {2: True},
                  {7: True},
