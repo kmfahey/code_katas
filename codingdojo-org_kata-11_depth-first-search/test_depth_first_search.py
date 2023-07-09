@@ -5,9 +5,23 @@ from math import inf
 from depth_first_search import *
 
 
+# The *_adjacent_nodes() functions return the adjacent nodes in numeric order.
+# Because dfs() pushes the nodes onto the stack in that order, and then pops
+# them off the stack in reverse order, at each stage of the search dfs() will
+# always traverse the neighboring nodes in reverse order from highest-numbered
+# to lowest-numbered.
+
 def test_dfs_adj_mx():
-    dfs_results = dfs(maze_2x2_adjmx, 1, adjmx_adjacent_nodes)
-    assert dfs_results == [1, 3, 4, 2]
+    one_node_dfs_results = dfs(one_node_adjmx, 1, adjmx_adjacent_nodes)
+    two_node_dfs_results = dfs(two_node_adjmx, 1, adjmx_adjacent_nodes)
+    maze_2x2_dfs_results = dfs(maze_2x2_adjmx, 1, adjmx_adjacent_nodes)
+    binary_tree_dfs_results = dfs(binary_tree_adjmx, 1, adjmx_adjacent_nodes)
+    maze_3x3_dfs_results = dfs(maze_3x3_adjmx, 1, adjmx_adjacent_nodes)
+    assert one_node_dfs_results == [1]
+    assert two_node_dfs_results == [1, 2]
+    assert maze_2x2_dfs_results == [1, 3, 4, 2]
+    assert binary_tree_dfs_results == [1, 3, 7, 6, 2, 5, 4]
+    assert maze_3x3_dfs_results == [1, 2, 5, 8, 9, 6, 7, 4, 3]
 
 # Using every form of graph representation except OO, so that I get experience
 # writing the same graph algorithm for each one.
@@ -95,6 +109,13 @@ maze_2x2_adjl = [{2: True, 3: True},
 
 
 # BINARY TREE
+#
+# incidence matrix
+#            1
+#          /   \
+#        2       3
+#       / \     / \
+#      4   5   6   7
 
 # adjacency matrix
 #                     1    2    3    4    5    6    7
@@ -150,6 +171,12 @@ binary_tree_adjl = [{2: True, 3: True},
 
 
 # 3 X 3 MAZE
+# 
+# 1 - 2 - 3
+#     |    
+# 4   5 - 6
+# |   |   |
+# 7 - 8 - 9
 
 # adjacency matrix
 #                  1    2    3    4    5    6    7    8    9
@@ -193,7 +220,7 @@ maze_3x3_edgl = [(1, 2),
 # e   f   g
 # 7 h 8 i 9
 #                  a  b  c  d  e  f  g  h  i
-maze_3x3_adjmx = [[1, 0, 0, 0, 0, 0, 0, 0, 0], # 1
+maze_3x3_incmx = [[1, 0, 0, 0, 0, 0, 0, 0, 0], # 1
                   [1, 1, 1, 0, 0, 0, 0, 0, 0], # 2
                   [0, 1, 0, 0, 0, 0, 0, 0, 0], # 3
                   [0, 0, 0, 0, 1, 0, 0, 0, 0], # 4

@@ -13,7 +13,7 @@ def adjmx_adjacent_nodes(graph, this_node):
     for index in range(len(adjrow)):
         if adjrow[index] == 1:
             other_nodes.append(index + 1)
-    return sorted(other_nodes)
+    return other_nodes
 
 def dfs(graph, this_node, adjacent_edges):
     stack = list()
