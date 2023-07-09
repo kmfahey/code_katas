@@ -5,22 +5,24 @@ from collections import OrderedDict
 from math import inf
 
 
-def adjmx_adjacent_edges(graph, this_vertex):
-    adjrow = graph[this_vertex - 1]
-    other_vertexes = list()
+__all__ = "dfs", "adjmx_adjacent_nodes"
+
+def adjmx_adjacent_nodes(graph, this_node):
+    adjrow = graph[this_node - 1]
+    other_nodes = list()
     for index in range(len(adjrow)):
         if adjrow[index] == 1:
-            other_vertexes.append(index + 1)
-    return other_vertexes
+            other_nodes.append(index + 1)
+    return sorted(other_nodes)
 
-def iter_depth_1st_search(graph, this_vertex):
+def dfs(graph, this_node, adjacent_edges):
     stack = list()
     seen = OrderedDict()
-    stack.append(this_vertex)
+    stack.append(this_node)
     while stack:
-        this_vertex = stack.pop()
-        if this_vertex not in seen:
-            seen[this_vertex] = None
-            for other_vertex in adjmx_adjacent_edges(graph, this_vertex):
-                stack.append(other_vertex)
+        this_node = stack.pop()
+        if this_node not in seen:
+            seen[this_node] = None
+            for other_node in adjacent_edges(graph, this_node):
+                stack.append(other_node)
     return list(seen.keys())
