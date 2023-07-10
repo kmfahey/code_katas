@@ -1,4 +1,4 @@
-# CodingDojo.com Kata #10: Depth First Search
+# CodingDojo.com Kata #11: Depth First Search
 
 ## Kata Source
 
