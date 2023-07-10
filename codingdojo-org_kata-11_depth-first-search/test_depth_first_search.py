@@ -6,10 +6,10 @@ from depth_first_search import *
 
 
 # The *_adj_nodes() functions return the adjacent nodes in numeric order.
-# Because dfs() pushes the nodes onto the stack in that order, and then pops
-# them off the stack in reverse order, at each stage of the search dfs() will
-# always traverse the neighboring nodes in reverse order from highest-numbered
-# to lowest-numbered.
+# Because iter_dfs() pushes the nodes onto the stack in that order, and then
+# pops them off the stack in reverse order, at each stage of the search
+# iter_dfs() will always traverse the neighboring nodes in reverse order from
+# highest-numbered to lowest-numbered.
 
 one_node_dfs_trav = [1]
 two_nodes_dfs_trav = [1, 2]
@@ -18,39 +18,39 @@ binary_tree_dfs_trav = [1, 3, 7, 6, 2, 5, 4]
 maze_3x3_dfs_trav = [1, 2, 5, 8, 9, 6, 7, 4, 3]
 
 def test_dfs_adj_mx():
-    assert dfs(one_node_adjmx, 1, adjmx_adj_nodes) == one_node_dfs_trav
-    assert dfs(two_nodes_adjmx, 1, adjmx_adj_nodes) == two_nodes_dfs_trav
-    assert dfs(maze_2x2_adjmx, 1, adjmx_adj_nodes) == maze_2x2_dfs_trav
-    assert dfs(binary_tree_adjmx, 1, adjmx_adj_nodes) == binary_tree_dfs_trav
-    assert dfs(maze_3x3_adjmx, 1, adjmx_adj_nodes) == maze_3x3_dfs_trav
+    assert iter_dfs(one_node_adjmx, 1, adjmx_adj_nodes) == one_node_dfs_trav
+    assert iter_dfs(two_nodes_adjmx, 1, adjmx_adj_nodes) == two_nodes_dfs_trav
+    assert iter_dfs(maze_2x2_adjmx, 1, adjmx_adj_nodes) == maze_2x2_dfs_trav
+    assert iter_dfs(binary_tree_adjmx, 1, adjmx_adj_nodes) == binary_tree_dfs_trav
+    assert iter_dfs(maze_3x3_adjmx, 1, adjmx_adj_nodes) == maze_3x3_dfs_trav
 
 def test_dfs_adjl():
-    assert dfs(one_node_adjl, 1, adjl_adj_nodes) == one_node_dfs_trav
-    assert dfs(two_nodes_adjl, 1, adjl_adj_nodes) == two_nodes_dfs_trav
-    assert dfs(maze_2x2_adjl, 1, adjl_adj_nodes) == maze_2x2_dfs_trav
-    assert dfs(binary_tree_adjl, 1, adjl_adj_nodes) == binary_tree_dfs_trav
-    assert dfs(maze_3x3_adjl, 1, adjl_adj_nodes) == maze_3x3_dfs_trav
+    assert iter_dfs(one_node_adjl, 1, adjl_adj_nodes) == one_node_dfs_trav
+    assert iter_dfs(two_nodes_adjl, 1, adjl_adj_nodes) == two_nodes_dfs_trav
+    assert iter_dfs(maze_2x2_adjl, 1, adjl_adj_nodes) == maze_2x2_dfs_trav
+    assert iter_dfs(binary_tree_adjl, 1, adjl_adj_nodes) == binary_tree_dfs_trav
+    assert iter_dfs(maze_3x3_adjl, 1, adjl_adj_nodes) == maze_3x3_dfs_trav
 
 def test_dfs_edgl():
-    assert dfs(one_node_edgl, 1, edgl_adj_nodes) == one_node_dfs_trav
-    assert dfs(two_nodes_edgl, 1, edgl_adj_nodes) == two_nodes_dfs_trav
-    assert dfs(maze_2x2_edgl, 1, edgl_adj_nodes) == maze_2x2_dfs_trav
-    assert dfs(binary_tree_edgl, 1, edgl_adj_nodes) == binary_tree_dfs_trav
-    assert dfs(maze_3x3_edgl, 1, edgl_adj_nodes) == maze_3x3_dfs_trav
+    assert iter_dfs(one_node_edgl, 1, edgl_adj_nodes) == one_node_dfs_trav
+    assert iter_dfs(two_nodes_edgl, 1, edgl_adj_nodes) == two_nodes_dfs_trav
+    assert iter_dfs(maze_2x2_edgl, 1, edgl_adj_nodes) == maze_2x2_dfs_trav
+    assert iter_dfs(binary_tree_edgl, 1, edgl_adj_nodes) == binary_tree_dfs_trav
+    assert iter_dfs(maze_3x3_edgl, 1, edgl_adj_nodes) == maze_3x3_dfs_trav
 
 def test_dfs_incmx():
-    assert dfs(one_node_incmx, 1, incmx_adj_nodes) == one_node_dfs_trav
-    assert dfs(two_nodes_incmx, 1, incmx_adj_nodes) == two_nodes_dfs_trav
-    assert dfs(maze_2x2_incmx, 1, incmx_adj_nodes) == maze_2x2_dfs_trav
-    assert dfs(binary_tree_incmx, 1, incmx_adj_nodes) == binary_tree_dfs_trav
-    assert dfs(maze_3x3_incmx, 1, incmx_adj_nodes) == maze_3x3_dfs_trav
+    assert iter_dfs(one_node_incmx, 1, incmx_adj_nodes) == one_node_dfs_trav
+    assert iter_dfs(two_nodes_incmx, 1, incmx_adj_nodes) == two_nodes_dfs_trav
+    assert iter_dfs(maze_2x2_incmx, 1, incmx_adj_nodes) == maze_2x2_dfs_trav
+    assert iter_dfs(binary_tree_incmx, 1, incmx_adj_nodes) == binary_tree_dfs_trav
+    assert iter_dfs(maze_3x3_incmx, 1, incmx_adj_nodes) == maze_3x3_dfs_trav
 
 def test_dfs_adjmap():
-    assert dfs(one_node_adjmap, 1, adjmap_adj_nodes) == one_node_dfs_trav
-    assert dfs(two_nodes_adjmap, 1, adjmap_adj_nodes) == two_nodes_dfs_trav
-    assert dfs(maze_2x2_adjmap, 1, adjmap_adj_nodes) == maze_2x2_dfs_trav
-    assert dfs(binary_tree_adjmap, 1, adjmap_adj_nodes) == binary_tree_dfs_trav
-    assert dfs(maze_3x3_adjmap, 1, adjmap_adj_nodes) == maze_3x3_dfs_trav
+    assert iter_dfs(one_node_adjmap, 1, adjmap_adj_nodes) == one_node_dfs_trav
+    assert iter_dfs(two_nodes_adjmap, 1, adjmap_adj_nodes) == two_nodes_dfs_trav
+    assert iter_dfs(maze_2x2_adjmap, 1, adjmap_adj_nodes) == maze_2x2_dfs_trav
+    assert iter_dfs(binary_tree_adjmap, 1, adjmap_adj_nodes) == binary_tree_dfs_trav
+    assert iter_dfs(maze_3x3_adjmap, 1, adjmap_adj_nodes) == maze_3x3_dfs_trav
 
 
 # Using every form of graph representation except OO, so that I get experience

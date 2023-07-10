@@ -2,10 +2,10 @@
 
 from collections import OrderedDict
 
-from math import inf
 
+__all__ = ("iter_dfs", "recurse_dfs", "adjmx_adj_nodes", "adjl_adj_nodes", "edgl_adj_nodes", "incmx_adj_nodes",
+           "adjmap_adj_nodes")
 
-__all__ = "dfs", "adjmx_adj_nodes", "adjl_adj_nodes", "edgl_adj_nodes", "incmx_adj_nodes", "adjmap_adj_nodes"
 
 def adjmx_adj_nodes(graph, this_node):
     adjrow = graph[this_node - 1]
@@ -15,9 +15,11 @@ def adjmx_adj_nodes(graph, this_node):
             other_nodes.append(index + 1)
     return other_nodes
 
+
 def adjl_adj_nodes(graph, this_node):
     index = this_node - 1
     return sorted(graph[index])
+
 
 def edgl_adj_nodes(graph, this_node):
     other_nodes = list()
@@ -28,6 +30,7 @@ def edgl_adj_nodes(graph, this_node):
         elif right_node == this_node:
             other_nodes.append(left_node)
     return sorted(other_nodes)
+
 
 def incmx_adj_nodes(graph, node):
     node_index = node - 1  # adjust for 0-indexing
@@ -41,12 +44,14 @@ def incmx_adj_nodes(graph, node):
                     adj_nodes.append(other_node_index + 1)
     return adj_nodes
 
+
 def adjmap_adj_nodes(graph, this_node):
     index = this_node - 1
     return sorted(graph[index].keys())
 
+
 # iterative
-def dfs(graph, this_node, adj_nodes_func):
+def iter_dfs(graph, this_node, adj_nodes_func):
     stack = list()
     seen = OrderedDict()
     stack.append(this_node)
@@ -58,15 +63,18 @@ def dfs(graph, this_node, adj_nodes_func):
                 stack.append(other_node)
     return list(seen.keys())
 
-# recursive (not yet functional)
-# def recurs_dfs(graph, this_node, adj_nodes_func):
-#     stack = list()
-#     seen = OrderedDict()
-#     def _dfs(node):
-#         retval = [node]
-#         seen[node] = True
-#         for other_node in adj_nodes_func(graph, node):
-#             if other_node not in seen:
-#                 retval.extend(_dfs(other_node))
-#         return sorted(retval, reverse=True)
-#     return _dfs(this_node)
+
+# recursive
+def recurse_dfs(graph, start_node, adj_nodes_func):
+    seen = OrderedDict()
+
+    def _dfs_inner(this_node):
+        retval = list()
+        seen[this_node] = True
+        for other_node in adj_nodes_func(graph, this_node):
+            if other_node in seen:
+                continue
+            retval.extend(_dfs_inner(other_node))
+        return retval
+
+    return _dfs_inner(start_node)
