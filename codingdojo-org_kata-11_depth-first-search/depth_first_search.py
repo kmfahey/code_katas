@@ -18,7 +18,7 @@ def adjmx_adj_nodes(graph, this_node):
 
 def adjl_adj_nodes(graph, this_node):
     index = this_node - 1
-    return sorted(graph[index])
+    return graph[index]
 
 
 def edgl_adj_nodes(graph, this_node):
@@ -29,7 +29,7 @@ def edgl_adj_nodes(graph, this_node):
             other_nodes.append(right_node)
         elif right_node == this_node:
             other_nodes.append(left_node)
-    return sorted(other_nodes)
+    return other_nodes
 
 
 def incmx_adj_nodes(graph, node):
@@ -47,7 +47,7 @@ def incmx_adj_nodes(graph, node):
 
 def adjmap_adj_nodes(graph, this_node):
     index = this_node - 1
-    return sorted(graph[index].keys())
+    return graph[index].keys()
 
 
 # iterative
@@ -67,6 +67,7 @@ def iter_dfs(graph, this_node, adj_nodes_func):
 # recursive
 def recurse_dfs(graph, start_node, adj_nodes_func):
     seen = OrderedDict()
+    retval = [1]
 
     def _dfs_inner(this_node):
         retval = list()
@@ -74,7 +75,10 @@ def recurse_dfs(graph, start_node, adj_nodes_func):
         for other_node in adj_nodes_func(graph, this_node):
             if other_node in seen:
                 continue
+            else:
+                retval.append(other_node)
             retval.extend(_dfs_inner(other_node))
         return retval
 
-    return _dfs_inner(start_node)
+    retval.extend(_dfs_inner(start_node))
+    return retval
