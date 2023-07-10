@@ -28,3 +28,9 @@ Kata is drawn from codingdojo.com. Original code kata webpage is visible
 > function-call stack, rather than a stack data structure.
 
 See the above-linked page for full kata text.
+
+## Variations
+
+The author decided against using the dfs algorithm to answer user-like questions in a dynamic fashion. The exercise
+was taken as an opportunity to implement both iterative and recursive DFS algorithms, with fixtures to apply them to
+adjacency list, edge list, adjacency matrix, incidence matrix and adjacent map graph data structures.
