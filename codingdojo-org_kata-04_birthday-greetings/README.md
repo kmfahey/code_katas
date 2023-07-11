@@ -5,7 +5,7 @@
 Kata is drawn from codingdojo.com. Original code kata webpage is visible
 [here](https://codingdojo.org/kata/birthday-greetings/).
 
-## Kata Partial Instructions
+## Kata Instructions Excerpts
 
 > ### Birthday Greetings
 > 

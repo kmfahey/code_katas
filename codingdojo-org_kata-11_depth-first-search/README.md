@@ -5,7 +5,7 @@
 Kata is drawn from codingdojo.com. Original code kata webpage is visible
 [here](https://codingdojo.org/kata/DepthFirstSearch/).
 
-## Kata
+## Kata Instructions Excerpt
 
 > ### Depth first search
 >

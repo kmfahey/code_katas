@@ -5,7 +5,7 @@
 Kata is drawn from codekata.com. Original code kata webpage is visible
 [here](http://codekata.com/kata/kata19-word-chains/).
 
-## Kata Text Selection
+## Kata Instructions Excerpt
 
 > Write a program that solves word-chain puzzles.
 > 

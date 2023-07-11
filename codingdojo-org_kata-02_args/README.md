@@ -5,7 +5,7 @@
 Kata is drawn from codingdojo.com. Original code kata webpage is visible
 [here](https://codingdojo.org/kata/Args/).
 
-## Kata Partial Instructions
+## Kata Instructions Excerpt
 
 > Most of us have had to parse command-line arguments from time to time. If we
 > don’t have a convenient utility, then we simply walk the array of strings

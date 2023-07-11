@@ -5,7 +5,7 @@
 Kata is drawn from codekata.com. Original code kata webpage is visible
 [here](http://codekata.com/kata/kata13-counting-code-lines/).
 
-## Kata Text Selection
+## Kata Instructions Excerpt
 
 > Counting lines of code in Java source is not quite as simple as it seems.
 >

@@ -5,7 +5,7 @@
 Kata is drawn from codekata.com. Original code kata webpage is visible
 [here](http://codekata.com/kata/kata09-back-to-the-checkout/).
 
-## Kata Text Selection
+## Kata Instructions Excerpt
 
 > Back to the supermarket. This week, we’ll implement the code for a checkout
 > system that handles pricing schemes such as “apples cost 50 cents, three

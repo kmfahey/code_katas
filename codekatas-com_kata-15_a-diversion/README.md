@@ -5,7 +5,7 @@
 Kata is drawn from codekata.com. Original code kata webpage is visible
 [here](http://codekata.com/kata/kata15-a-diversion/).
 
-## Kata Text Selection
+## Kata Instructions Excerpt
 
 > Think of binary numbers: sequences of 0’s and 1’s. How many n-digit binary
 > numbers are there that don’t have two adjacent 1 bits? For example, here are

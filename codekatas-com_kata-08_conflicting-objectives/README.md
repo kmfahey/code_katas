@@ -5,7 +5,7 @@
 Kata is drawn from codekata.com. Original code kata webpage is visible
 [here](http://codekata.com/kata/kata08-conflicting-objectives/).
 
-## Kata Text Selection
+## Kata Instructions Excerpt
 
 > Why do we write code? At one level, we’re trying to solve some particular
 > problem, to add some kind of value to the world. But often there are also

@@ -5,7 +5,7 @@
 Kata is drawn from codekata.com. Original code kata webpage is visible
 [here](http://codekata.com/kata/kata14-tom-swift-under-the-milkwood/).
 
-## Kata Text Selection
+## Kata Instructions Excerpt
 
 > Trigrams can be used to mutate text into new, surreal, forms. But what
 > heuristics do we apply to get a reasonable result?

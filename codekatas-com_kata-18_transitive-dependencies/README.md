@@ -5,7 +5,7 @@
 Kata is drawn from codekata.com. Original code kata webpage is visible
 [here](http://codekata.com/kata/kata18-transitive-dependencies/).
 
-## Kata Text Selection
+## Kata Instructions Excerpt
 
 > Let’s write some code that calculates how dependencies propagate between
 > things such as classes in a program.

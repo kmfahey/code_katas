@@ -5,7 +5,7 @@
 Kata is drawn from codekata.com. Original code kata webpage is visible
 [here](http://codekata.com/kata/kata11-sorting-it-out/).
 
-## Kata Text Selection
+## Kata Instructions Excerpt
 
 > Just because we need to sort something doesn’t necessarily mean we need to
 > use a conventional sorting algorithm.

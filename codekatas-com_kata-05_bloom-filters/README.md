@@ -5,7 +5,7 @@
 Kata is drawn from codekata.com. Original code kata webpage is visible
 [here](http://codekata.com/kata/kata05-bloom-filters/).
 
-## Kata Text Selection
+## Kata Instructions Excerpt
 
 > There are many circumstances where we need to find out if something is a
 > member of a set, and many algorithms for doing it. If the set is small, you

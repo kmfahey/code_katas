@@ -5,7 +5,7 @@
 Kata is drawn from codekata.com. Original code kata webpage is visible
 [here](http://codekata.com/kata/kata06-anagrams/).
 
-## Kata Text Selection
+## Kata Instructions Excerpt
 
 > Back to non-realistic coding this week (sorry, Martin). Let’s solve some
 > crossword puzzle clues.

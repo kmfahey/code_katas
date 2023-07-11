@@ -5,7 +5,7 @@
 Kata is drawn from codekata.com. Original code kata webpage is visible
 [here](http://codekata.com/kata/kata21-simple-lists/).
 
-## Kata Text Selection
+## Kata Instructions Excerpt
 
 > Perhaps there’s more to the humble list of values than you might think.
 > Let’s experiment with some basic list processing.

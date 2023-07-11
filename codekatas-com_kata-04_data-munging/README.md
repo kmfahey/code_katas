@@ -5,7 +5,7 @@
 Kata is drawn from codekata.com. Original code kata webpage is visible
 [here](http://codekata.com/kata/kata02-karate-chop/).
 
-## Kata Text Selection
+## Kata Instructions Excerpt
 
 > Martin Fowler gave me a hard time for Kata02, complaining that it was yet
 > another single-function, academic exercise. Which, or course, it was. So this
