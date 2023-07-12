@@ -3,6 +3,8 @@
 import random
 
 
+__all__ = "eight_queens_dfs",
+
 nums_1_thru_8 = list(range(8))
 
 
