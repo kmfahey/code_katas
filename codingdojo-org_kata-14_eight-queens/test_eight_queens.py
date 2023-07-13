@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from eight_queens import eight_queens_dfs
+from eight_queens import eight_queens_dfs, eight_queens_bfs
 
 
 def gen_moves_plot(row, col):
@@ -51,12 +51,20 @@ def gen_moves_plot(row, col):
     return moves_plot
 
 
-def test_eight_queens_dfs():
-    soln = eight_queens_dfs()
-
+def _test_solution(soln):
     moves_plots = {(row, soln[row]): gen_moves_plot(row, soln[row]) for row in range(8)}
 
     assert not any(moves_plot[row][col]
                    for coord, moves_plot in moves_plots.items()
                    for row, col in moves_plots.keys()
                    if (row, col) != coord)
+
+
+def test_eight_queens_dfs():
+    soln = eight_queens_dfs()
+    _test_solution(soln)
+
+
+def test_eight_queens_bfs():
+    for soln in eight_queens_bfs():
+        _test_solution(soln)
