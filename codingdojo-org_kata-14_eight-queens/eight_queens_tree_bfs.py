@@ -1,8 +1,5 @@
 #!/usr/bin/python3
 
-import random
-import pprint
-
 from eight_queens_util import is_threatened
 
 
