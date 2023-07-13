@@ -6,13 +6,13 @@ import numpy as numpy
 import random
 
 
-# Code copied wholesale from
-# <https://towardsdatascience.com/simulated-annealing-and-the-eight-queen-problem-10f737edbb7e>.
-# Code was presented without a license of any kind. Including it as an
-# educational exercise seemed allowed based on the article's tone. Those wishing
-# to use this code for more constructive purpoises should contact the article's
-# author, whose page is at https://medium.com/@sgerardak, about licensing
-# concerns.
+# This code copied wholesale from "Simulated Annealing and the Eight Queen Problem"
+# <https://towardsdatascience.com/simulated-annealing-and-the-eight-queen-problem-10f737edbb7e>,
+# a Medium article by Sebastián Gerard Aguilar Kleimann <https://medium.com/@sgerardak>.
+# No license was included with the code. Including it, a mere 29 lines, in a
+# self-educational exercise seemed allowed based on the article's tone. Those
+# wishing to include it in a larger project or put it to a commercial use should
+# contact the original author to work out permission and licensing issues.
 
 
 __all__ = "eight_queens_sim_anneal",
