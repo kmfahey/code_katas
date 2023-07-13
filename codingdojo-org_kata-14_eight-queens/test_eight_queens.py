@@ -1,19 +1,17 @@
 #!/usr/bin/python3
 
-import pprint
-
 from eight_queens import eight_queens_dfs
 
 
 def gen_moves_plot(row, col):
+    coords = list()
+
     # Explicit all-legal-moves generation code for a queen given initial
     # coordinates. Utility function for use in testing functions to validate
     # that no queen can capture any other, using very deliberate and
     # explicit code that doesn't pull any tricks. (Contrast with how
     # eight_queens_tree_dfs.eight_queens_dfs()'s inner function _is_threatened()
     # tests for this.)
-
-    coords = list()
 
     # South
     if row < 7:
@@ -54,19 +52,11 @@ def gen_moves_plot(row, col):
 
 
 def test_eight_queens_dfs():
-    solution = eight_queens_dfs()
+    soln = eight_queens_dfs()
 
-    moves_plots = {(row, solution[row]): gen_moves_plot(row, solution[row]) for row in range(8)}
+    moves_plots = {(row, soln[row]): gen_moves_plot(row, soln[row]) for row in range(8)}
 
     assert not any(moves_plot[row][col]
                    for coord, moves_plot in moves_plots.items()
                    for row, col in moves_plots.keys()
                    if (row, col) != coord)
-
-def main():
-    import pprint
-    pprint.pprint(test_eight_queens_dfs())
-
-
-if __name__ == "__main__":
-    main()
