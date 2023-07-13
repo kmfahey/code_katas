@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from eight_queens import eight_queens_dfs, eight_queens_bfs
+from eight_queens import eight_queens_dfs, eight_queens_bfs, eight_queens_sim_anneal
 
 
 def gen_moves_plot(row, col):
