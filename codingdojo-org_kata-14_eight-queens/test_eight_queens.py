@@ -68,3 +68,9 @@ def test_eight_queens_dfs():
 def test_eight_queens_bfs():
     for soln in eight_queens_bfs():
         _test_solution(soln)
+
+
+def test_eight_queens_sim_anneal():
+    for i in range(100):
+        soln = eight_queens_sim_anneal()
+        _test_solution(soln)
