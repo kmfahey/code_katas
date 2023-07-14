@@ -44,7 +44,7 @@ def gen_moves_plot(row, col):
     # coordinates. Utility function for use in testing functions to validate
     # that no queen can capture any other, using very deliberate and
     # explicit code that doesn't pull any tricks. (Contrast with how
-    # eight_queens_tree_dfs.eight_queens_dfs()'s inner function _is_threatened()
+    # eight_queens_dfs.eight_queens_dfs()'s inner function _is_threatened()
     # tests for this.)
 
     # South
