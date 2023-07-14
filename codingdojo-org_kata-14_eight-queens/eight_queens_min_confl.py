@@ -7,24 +7,19 @@ from math import inf as infinity
 from eight_queens_util import free_queens_kmf as free_queens, is_threatened_by_index, gen_moves_plot
 
 
-__all__ = ("minimum_conflicts", "rand_positions", "is_solution", "randomly_select_conflicting_queen",
-           "move_queen_to_min_confl_pos", "count_conflicts", "move_queen")
+__all__ = ("eight_queens_min_confl", "rand_positions", "is_solution", "get_rand_confl_queen",
+           "move_queen_to_min_confl_pos", "count_conflicts", "move_queen", "eight_queens_min_confl")
 
 
-# Pseudocode for minimum conflicts random walk algorithm to solve eight queens
-# problem.
+def eight_queens_min_confl():
+    positions = rand_positions()
+    while True:
+        if is_solution(positions):
+            return positions
+        queen_index = get_rand_confl_queen(positions)
+        positions = move_queen_to_min_confl_pos(positions, queen_index)
+    return None
 
-def minimum_conflicts(n, max_steps):
-    pass
-
-# function minimum_conflicts(n, max_steps):
-#     board = rand_positions(n)
-#     for i in range(max_steps):
-#         if is_solution(board):
-#             return board
-#         queen = randomly_select_conflicting_queen(board)
-#         move_queen_to_min_confl_pos(queen, board)
-#     return None  # No solution found within max_steps
 
 def rand_positions():
     positions = list(range(8))
@@ -36,7 +31,7 @@ def is_solution(positions):
     return free_queens(positions) == 8
 
 
-def randomly_select_conflicting_queen(positions):
+def get_rand_confl_queen(positions):
     return random.choice(list(filter(lambda queen_index: is_threatened_by_index(positions, queen_index), range(8))))
 
 
@@ -51,7 +46,7 @@ def move_queen_to_min_confl_pos(positions, queen_index):
         if conflicts < min_conflicts:
             min_conflicts = conflicts
             min_confl_pos = [to_index]
-        else:
+        elif conflicts == min_conflicts:
             min_confl_pos.append(to_index)
     return move_queen(positions, queen_index, random.choice(min_confl_pos))
 
