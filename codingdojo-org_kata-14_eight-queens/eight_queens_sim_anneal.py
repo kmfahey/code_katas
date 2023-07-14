@@ -18,7 +18,7 @@ from eight_queens_util import free_queens_kmf as free_queens
 # contact the original author to work out permission and licensing issues.
 
 
-__all__ = "eight_queens_sim_anneal", "free_queens_sgak"
+__all__ = "eight_queens_sim_anneal",
 
 
 # This objective function has been replaced with
@@ -72,7 +72,7 @@ def eight_queens_sim_anneal():
 
     while best_objective != 8.0:
         # Assign the objective function to "CustomFitness" method.
-        objective= mlrose.CustomFitness(free_queens)
+        objective = mlrose.CustomFitness(free_queens)
 
         #Description of the problem
         problem = mlrose.DiscreteOpt(length=8, fitness_fn=objective, maximize=True, max_val=8)
@@ -85,7 +85,7 @@ def eight_queens_sim_anneal():
         random.shuffle(initial_position)
 
         # Solve problem using simulated annealing
-        best_position, best_objective = mlrose.simulated_annealing(problem=problem, schedule=T, max_attempts=500, max_iters=5000,
-                                                                   init_state=initial_position)
+        best_position, best_objective = mlrose.simulated_annealing(problem=problem, schedule=T, max_attempts=500,
+                                                                   max_iters=5000, init_state=initial_position)
 
     return(best_position)
