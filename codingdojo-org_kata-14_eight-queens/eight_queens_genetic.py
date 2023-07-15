@@ -1,15 +1,22 @@
 #!/usr/bin/python3
 
-import pprint
 import random
 import statistics
 import operator
 import functools
 
-
 from eight_queens_util import free_queens_kmf as free_queens
 
-from test_eight_queens_min_confl import KNOWN_SOLUTIONS
+
+__all__ = "eight_queens_genetic",
+
+
+class MaxMutationsException(Exception):
+    pass
+
+
+class MaxGenerationsException(Exception):
+    pass
 
 
 def gen_rand_positions():
@@ -62,41 +69,32 @@ def filter_for_successes(population):
     return list(filter(lambda positions: free_queens(positions) == 8, population))
 
 
-class MaxMutationsException(Exception):
-    pass
-
-
-class MaxGenerationsException(Exception):
-    pass
-
-
-def eight_queens_genetic(generations=1000, mutations=100):
+def eight_queens_genetic(max_generations=1000, max_mutations=100):
     successes = list()
 
     def _8_queens_genetic():
         population = gen_population()
         generations = 1
 
-        while generations <= 1000:
+        while generations <= max_generations:
             cur_popn_mean_fitness = mean_fitness(population)
             mutations = 1
-            while mutations <= 100: 
+            while mutations <= 100:
                 new_population = mutate_population(population)
                 new_popn_mean_fitness = mean_fitness(new_population)
                 if new_popn_mean_fitness > cur_popn_mean_fitness:
                     break
                 mutations += 1
-
-            if new_popn_mean_fitness <= cur_popn_mean_fitness and mutations > 100:
-                raise MaxMutationsException("hit max mutation attempts, fitness not increasing")
+            if new_popn_mean_fitness <= cur_popn_mean_fitness and mutations > max_mutations:
+                raise MaxMutationsException(f"mutated the population {max_mutations} times, fitness not increasing")
 
             population = cull_population(new_population)
             successes.extend(filter_for_successes(population))
             if successes:
                 return
             generations += 1
-        if generations > 1000:
-            raise MaxGenerationsException("ran for", generations, "and didn't find solution")
+            if generations > max_generations:
+                raise MaxGenerationsException(f"ran for {max_generations} generations, and couldn't find solution")
 
     while not len(successes):
         try:
@@ -105,9 +103,3 @@ def eight_queens_genetic(generations=1000, mutations=100):
             pass
 
     return random.choice(successes)
-
-
-if __name__ == "__main__":
-    positions = eight_queens_genetic()
-    assert positions in KNOWN_SOLUTIONS
-    print("found a valid positions list:", positions)

@@ -22,7 +22,7 @@ __all__ = "eight_queens_sim_anneal",
 
 # This objective function has been replaced with
 # eight_queens_util.free_queens_kmf(), which in a parallel test of 10000 random
-# position arrays, consistently returned a number of free queens that was less
+# position arrays consistently returned a number of free queens that was less
 # than or equal to free_queens_sgak()'s measurement, and never returned a value
 # that was greater than free_queens_sgak()'s measurement. Between the two I
 # think it's this function that has the bug.

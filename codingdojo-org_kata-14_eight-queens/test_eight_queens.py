@@ -2,7 +2,7 @@
 
 import random
 
-from eight_queens import eight_queens_dfs, eight_queens_bfs, eight_queens_sim_anneal, eight_queens_min_confl
+from eight_queens import eight_queens_dfs, eight_queens_bfs, eight_queens_sim_anneal, eight_queens_min_confl, eight_queens_genetic
 
 from eight_queens_util import gen_moves_plot
 
@@ -36,6 +36,11 @@ def test_eight_queens_min_confl():
     for i in range(10):
         soln = eight_queens_min_confl()
         _test_solution(soln)
+
+
+def test_eight_queens_genetic():
+    soln = eight_queens_genetic()
+    _test_solution(soln)
 
 
 if __name__ == "__main__":
