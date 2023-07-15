@@ -2,7 +2,8 @@
 
 import random
 
-from eight_queens import eight_queens_dfs, eight_queens_bfs, eight_queens_sim_anneal, eight_queens_min_confl, eight_queens_genetic
+from eight_queens import (eight_queens_dfs, eight_queens_bfs, eight_queens_sim_anneal, eight_queens_min_confl,
+                          eight_queens_genetic, eight_queens_brute_force)
 
 from eight_queens_util import gen_moves_plot
 
@@ -43,7 +44,6 @@ def test_eight_queens_genetic():
     _test_solution(soln)
 
 
-if __name__ == "__main__":
-    soln = eight_queens_min_confl()
-    print(soln)
-
+def test_eight_queens_brute_force():
+    soln = eight_queens_brute_force()
+    _test_solution(soln)
