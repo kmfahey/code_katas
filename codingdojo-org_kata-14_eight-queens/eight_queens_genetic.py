@@ -70,59 +70,44 @@ class MaxGenerationsException(Exception):
     pass
 
 
-def eight_queens_genetic():
-    population = gen_population()
-    generations = 1
+def eight_queens_genetic(generations=1000, mutations=100):
+    successes = list()
 
-    while generations <= 1000:
-        print("generation #", generations)
+    def _8_queens_genetic():
+        population = gen_population()
+        generations = 1
 
-        cur_popn_mean_fitness = mean_fitness(population)
-        print("current population mean fitness:", cur_popn_mean_fitness)
+        while generations <= 1000:
+            cur_popn_mean_fitness = mean_fitness(population)
+            mutations = 1
+            while mutations <= 100: 
+                new_population = mutate_population(population)
+                new_popn_mean_fitness = mean_fitness(new_population)
+                if new_popn_mean_fitness > cur_popn_mean_fitness:
+                    break
+                mutations += 1
 
-        mutations = 1
+            if new_popn_mean_fitness <= cur_popn_mean_fitness and mutations > 100:
+                raise MaxMutationsException("hit max mutation attempts, fitness not increasing")
 
-        while mutations <= 100: 
-            new_population = mutate_population(population)
-            new_popn_mean_fitness = mean_fitness(new_population)
-            if new_popn_mean_fitness > cur_popn_mean_fitness:
-                print("mutation lead to improvement, new population mean fitness:", new_popn_mean_fitness)
-                break
-            else:
-                print("mutation did not improve, insuficient mean fitness was:", new_popn_mean_fitness)
-            mutations += 1
+            population = cull_population(new_population)
+            successes.extend(filter_for_successes(population))
+            if successes:
+                return
+            generations += 1
+        if generations > 1000:
+            raise MaxGenerationsException("ran for", generations, "and didn't find solution")
 
-        if new_popn_mean_fitness <= cur_popn_mean_fitness:
-            if mutations == 101:
-                raise MaxMutationsException("hit max mutation attempts, none are improvement")
-            else:
-                raise RuntimeError("can't happen error: fell off the end of function's inner while loop without obvious reason")
+    while not len(successes):
+        try:
+            _8_queens_genetic()
+        except (MaxMutationsException, MaxGenerationsException):
+            pass
 
-        population = cull_population(new_population)
-        print("culled population")
-
-        if successes := filter_for_successes(population):
-            return random.choice(successes)
-
-        generations += 1
-
-    if generations >= 1000:
-        raise MaxGenerationsException("ran for", generations, "and didn't find solution")
-    else:
-        raise RuntimeError("can't happen error: fell off the end of function's main while loop without obvious reason")
+    return random.choice(successes)
 
 
 if __name__ == "__main__":
-    positions = None
-    trial = 1
-    while positions is None:
-        print("trial", trial)
-        try:
-            positions = eight_queens_genetic()
-        except MaxMutationsException as exception:
-            print(exception.args[0])
-        except MaxGenerationsException as exception:
-            print(exception.args[0])
-        trial += 1
+    positions = eight_queens_genetic()
     assert positions in KNOWN_SOLUTIONS
-    print("on trial", trial, "found a valid positions list:", positions)
+    print("found a valid positions list:", positions)
