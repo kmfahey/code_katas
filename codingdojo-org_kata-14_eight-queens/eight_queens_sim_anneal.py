@@ -3,6 +3,7 @@
 import mlrose
 import numpy as numpy
 import random
+import warnings
 
 
 from eight_queens_util import free_queens_kmf as free_queens
@@ -69,22 +70,28 @@ __all__ = "eight_queens_sim_anneal",
 def eight_queens_sim_anneal():
     best_objective = 0.0
 
-    while best_objective != 8.0:
-        # Assign the objective function to "CustomFitness" method.
-        objective = mlrose.CustomFitness(free_queens)
+    with warnings.catch_warnings():
 
-        #Description of the problem
-        problem = mlrose.DiscreteOpt(length=8, fitness_fn=objective, maximize=True, max_val=8)
+        while best_objective != 8.0:
+            # The simulated_annealing() call works, but usually throws a
+            # RuntimeWarning warning about an overflow. Can disregard.
+            warnings.filterwarnings("ignore", category=RuntimeWarning)
 
-        # Define decay schedule
-        T = mlrose.ExpDecay()
+            # Assign the objective function to "CustomFitness" method.
+            objective = mlrose.CustomFitness(free_queens)
 
-        # Define initial state
-        initial_position = numpy.array(range(8))
-        random.shuffle(initial_position)
+            #Description of the problem
+            problem = mlrose.DiscreteOpt(length=8, fitness_fn=objective, maximize=True, max_val=8)
 
-        # Solve problem using simulated annealing
-        best_position, best_objective = mlrose.simulated_annealing(problem=problem, schedule=T, max_attempts=500,
-                                                                   max_iters=5000, init_state=initial_position)
+            # Define decay schedule
+            T = mlrose.ExpDecay()
+
+            # Define initial state
+            initial_position = numpy.array(range(8))
+            random.shuffle(initial_position)
+
+            # Solve problem using simulated annealing
+            best_position, best_objective = mlrose.simulated_annealing(problem=problem, schedule=T, max_attempts=500,
+                                                                       max_iters=5000, init_state=initial_position)
 
     return(best_position)
