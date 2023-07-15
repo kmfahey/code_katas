@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+import random
+
 from eight_queens_util import is_threatened
 
 
@@ -37,6 +39,11 @@ def eight_queens_bfs():
             # valid positions is returned.
             retvals += _8q_bfs(next_lvl_positions)
 
-        return retvals
+            if len(retvals):
+                break
 
-    return _8q_bfs([])
+        return retvals[:1]
+
+    retvals = _8q_bfs([])
+
+    return random.choice(retvals) if len(retvals) else None

@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-import pprint
 import mlrose
 import numpy as numpy
 import random

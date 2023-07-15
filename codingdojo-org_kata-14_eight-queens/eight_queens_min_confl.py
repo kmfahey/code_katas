@@ -2,8 +2,6 @@
 
 import random
 
-from math import inf as infinity
-
 from eight_queens_util import free_queens_kmf as free_queens, is_threatened_by_index, gen_moves_plot
 
 

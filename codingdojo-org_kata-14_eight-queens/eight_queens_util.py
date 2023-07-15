@@ -7,6 +7,7 @@ __all__ = "is_threatened", "free_queens_kmf", "is_threatened_by_index", "gen_mov
 def is_threatened_by_index(positions, queen_index):
     return is_threatened(positions[:queen_index], positions[queen_index], positions[queen_index+1:])
 
+
 # Given a new position for the latest queen to be placed at, returns True if
 # the new queen would be threatened there, False if she would not be.
 def is_threatened(left_positions, new_queen_pos, right_positions=()):

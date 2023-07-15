@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-from eight_queens_min_confl import (rand_positions, is_solution, get_rand_confl_queen, move_queen_to_min_confl_pos,
-                                    count_conflicts, move_queen)
+from eight_queens_min_confl import (rand_positions, is_solution, move_queen_to_min_confl_pos, count_conflicts,
+                                    move_queen)
 
 
 KNOWN_SOLUTIONS = [[0, 4, 7, 5, 2, 6, 1, 3], [0, 5, 7, 2, 6, 3, 1, 4], [0, 6, 3, 5, 7, 1, 4, 2],

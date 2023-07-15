@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-import pprint
 import random
 
 from eight_queens import eight_queens_dfs, eight_queens_bfs, eight_queens_sim_anneal, eight_queens_min_confl
@@ -23,8 +22,8 @@ def test_eight_queens_dfs():
 
 
 def test_eight_queens_bfs():
-    for soln in eight_queens_bfs():
-        _test_solution(soln)
+    soln = eight_queens_bfs()
+    _test_solution(soln)
 
 
 def test_eight_queens_sim_anneal():
