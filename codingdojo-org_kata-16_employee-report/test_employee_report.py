@@ -1,9 +1,22 @@
 #!/usr/bin/python3
 
+from pytest import raises
+
 from employee_report import Employee, Roster
 
 
 master_roster_obj = Roster((Employee("Max", 17), Employee("Sepp", 18), Employee("Nina", 15), Employee("Mike", 51)))
+
+
+def test_employee_init():
+    with raises(ValueError):
+        empl = Employee("John Doe", 13)
+    with raises(ValueError):
+        empl = Employee("John Doe", 190)
+    with raises(ValueError):
+        empl = Employee("John! Doe!", 25)
+    with raises(ValueError):
+        empl = Employee(" John Doe ", 25)
 
 
 def test_list_empl_sundays():
@@ -18,6 +31,7 @@ def test_list_empl_sundays():
             assert employee in empl_can_work_sundays
         else:
             assert employee not in empl_can_work_sundays
+
 
 def test_list_empl_sorted():
     roster_obj = master_roster_obj.copy()
