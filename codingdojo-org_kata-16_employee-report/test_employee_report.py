@@ -17,24 +17,27 @@ def test_employee_init():
         empl = Employee("John! Doe!", 25)
     with raises(ValueError):
         empl = Employee(" John Doe ", 25)
+    empl = Employee("john doe", 25)
+    assert empl.name == "John Doe"
 
 
 def test_list_empl_sundays():
     roster_obj = master_roster_obj.copy()
-    employees = set(roster_obj.list_empl())
-    empl_can_work_sundays = set(roster_obj.list_empl(can_work_sundays=True))
+    employees = roster_obj.list_empl()
+    empl_can_work_sundays = roster_obj.list_empl(can_work_sundays=True)
     assert len(employees) != 0
     assert len(empl_can_work_sundays) != 0
     assert len(employees) >= len(empl_can_work_sundays)
     for employee in employees:
         if employee.age >= 18:
-            assert employee in empl_can_work_sundays
+            assert any(employee == sunday_empl for sunday_empl in empl_can_work_sundays)
         else:
-            assert employee not in empl_can_work_sundays
+            assert not any(employee == sunday_empl for sunday_empl in empl_can_work_sundays)
 
 
 def test_list_empl_sorted():
     roster_obj = master_roster_obj.copy()
+
     employees = roster_obj.list_empl()
     empl_sorted = roster_obj.list_empl(sorted_by_name=True)
     assert len(employees) != 0
@@ -42,3 +45,11 @@ def test_list_empl_sorted():
     assert len(employees) == len(empl_sorted)
     for left_empl, right_empl in zip(empl_sorted, empl_sorted[1:]):
         assert left_empl.name <= right_empl.name
+
+    empl_sorted_rev = roster_obj.list_empl(sorted_by_name=True, reverse=True)
+    assert len(empl_sorted) != 0
+    assert len(employees) == len(empl_sorted)
+    for left_empl, right_empl in zip(empl_sorted_rev, empl_sorted_rev[1:]):
+        assert left_empl.name >= right_empl.name
+
+

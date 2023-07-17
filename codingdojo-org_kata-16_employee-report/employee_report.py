@@ -7,7 +7,7 @@ import attr
 __all__ = "Employee", "Roster"
 
 
-@attr.s(frozen=True)
+@attr.s
 class Employee:
     @staticmethod
     def _validate_name(self, attribute, value):
@@ -15,6 +15,7 @@ class Employee:
             raise ValueError("value for name must not begin or end with a space")
         elif not re.match(r"^([A-Za-zÀ-ÖØ-öø-ÿ '’ʼ-])+$", value):
             raise ValueError("value for name must contain only letters, spaces, apostrophes and dashes")
+        return value.title()
 
     @staticmethod
     def _validate_age(self, attribute, value):
@@ -28,12 +29,25 @@ class Employee:
     name = attr.ib(type=str, validator=attr.validators.and_(attr.validators.instance_of(str), _validate_name))
     age = attr.ib(type=int, validator=attr.validators.and_(attr.validators.instance_of((int, float)), _validate_age))
 
+    def __attrs_post_init__(self):
+        self.name = self.name.title()
+
     @property
     def can_work_sundays(self):
         return self.age >= 18
 
     def __repr__(self):
         return f"Employee(name={repr(self.name)}, age={repr(self.age)})"
+
+    def __eq__(self, other):
+        if not isinstance(other, Employee):
+            return False
+        return self.name == other.name and self.age == other.age
+
+    def __ne__(self, other):
+        if not isinstance(other, Employee):
+            return True
+        return self.name != other.name or self.age != other.age
 
 
 class Roster:
