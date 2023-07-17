@@ -1,9 +1,9 @@
-# CodingDojo.com Kata #14: Eight Queens
+# CodingDojo.com Kata #16: Employee Report
 
 ## Kata Source
 
 Kata is drawn from codingdojo.com. Original code kata webpage is visible
-[here](https://codingdojo.org/kata/eight-queens/).
+[here](https://codingdojo.org/kata/Employee-Report/).
 
 ## Kata Instructions Excerpt
 
