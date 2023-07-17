@@ -43,8 +43,10 @@ class Roster:
     def copy(self):
         return Roster(self._employees.copy())
 
-    def list_empl(self):
-        return self._employees.copy()
-
-    def nonminor_empl(self):
-        return list(filter(lambda empl: empl.age >= 18, self.list_empl()))
+    def list_empl(self, can_work_sundays=False, sorted_by_name=False):
+        empl_list = self._employees.copy()
+        if can_work_sundays:
+            empl_list = list(filter(lambda empl: empl.age >= 18, self.list_empl()))
+        if sorted_by_name:
+            empl_list = sorted(empl_list, key=lambda empl: empl.name)
+        return empl_list
