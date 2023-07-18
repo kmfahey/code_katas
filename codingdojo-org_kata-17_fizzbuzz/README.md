@@ -3,7 +3,7 @@
 ## Kata Source
 
 Kata is drawn from codingdojo.com. Original code kata webpage is visible
-[here]().
+[here](https://codingdojo.org/kata/FizzBuzz/).
 
 ## Kata Instructions Excerpt
 
