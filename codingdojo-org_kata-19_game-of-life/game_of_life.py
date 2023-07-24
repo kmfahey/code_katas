@@ -31,8 +31,12 @@ def main():
         exit(0)
 
     input_blocks = get_input(options)
+
     snapshots = [parse_snapshot_file(input_block) for input_block in input_blocks]
-    pass
+
+    for snapshot in snapshots:
+        snapshot.advance()
+        print(str(snapshot))
 
 
 def get_input(options):
@@ -79,16 +83,20 @@ def parse_snapshot_file(snapshot_text):
         raise ParsingError("Could not parse dimensions from first line of input")
     x_dim, y_dim = map(int, dimensions_match.group(1, 2))
 
-    cellgrid = [[True if char == "*" else False if char == "." else char
-                 for char in snapshot_line]
-                for snapshot_line in snapshot_lines]
-
-    if len(cellgrid) != y_dim:
+    if len(snapshot_lines) != y_dim:
         raise ParsingError("number of rows of cell grid not equal to declared vertical dimension")
-    elif not all(len(cellgrid_row) == x_dim for cellgrid_row in cellgrid):
+    elif not all(len(snapshot_line) == x_dim for snapshot_line in snapshot_lines):
         raise ParsingError("some rows in cell grid not of the declared horizontal dimension")
-    elif not all(cellval is True or cellval is False for cellgrid_row in cellgrid for cellval in cellgrid_row):
+    elif not all(snapshot_char in ('.', '*')
+                 for snapshot_line in snapshot_lines
+                 for snapshot_char in snapshot_line):
         raise ParsingError("some characters in cell grid rows are not either '.' or '*'")
+
+    cellgrid = [[None] * x_dim for _ in range(y_dim)]
+
+    for y_index in range(y_dim):
+        for x_index in range(x_dim):
+            cellgrid[y_index][x_index] = 1 if snapshot_lines[y_index][x_index] == '*' else 0
 
     return Game_of_Life_Snapshot(generation, x_dim, y_dim, cellgrid)
 
@@ -117,12 +125,47 @@ class Game_of_Life_Snapshot:
                                                                  _validate_cellgrid))
 
     def __str__(self):
-        retval = [f"Generation {self.generation}:",
-                  f"{self.x_dim} {self.y_dim}"]
-        retval += [str.join("", ["*" if cell is True else "."
-                                 for cell in cellgrid_row])
-                   for cellgrid_row in self.cellgrid]
-        return str.join("\n", retval)
+        retvals = [f"Generation {self.generation}:",
+                   f"{self.x_dim} {self.y_dim}"]
+        for cellgrid_row in self.cellgrid:
+            retval_line = ""
+            for elem in cellgrid_row:
+                retval_line += "*" if elem else "."
+            retvals.append(retval_line)
+        return str.join("\n", retvals)
+
+    def advance(self):
+        new_cellgrid = [[None] * self.x_dim for _ in range(self.y_dim)]
+        for y_index in range(self.y_dim):
+            for x_index in range(self.x_dim):
+
+# Less elegant but eminently more debuggable alternative algorithm
+#
+#                 adj_coords = [(x_index + x_mod, y_index + y_mod)
+#                               for x_mod in range(-1, 2)
+#                               for y_mod in range(-1, 2)]
+#                 adj_coords = list(filter(lambda coord: coord[0] or coord[1], adj_coords))
+#                 adj_coords = list(filter(lambda coord: 0 <= coord[0] < self.x_dim, adj_coords))
+#                 adj_coords = list(filter(lambda coord: 0 <= coord[1] < self.y_dim, adj_coords))
+#                 sum_of_neighbors = sum(self.cellgrid[adj_y_index][adj_x_index]
+#                                        for adj_x_index, adj_y_index in adj_coords)
+#                 new_cellgrid[y_index][x_index] = (1 if sum_of_neighbors == 3
+#                                                     else self.cellgrid[y_index][x_index] if sum_of_neighbors == 2
+#                                                     else 0)
+
+                adj_coords = [(x_index + x_mod, y_index + y_mod)
+                              for x_mod in range(-1, 2)
+                                                           # Omits result that's simply the original coordinates.
+                              for y_mod in range(-1, 2) if (x_mod or y_mod) and
+                                                           # Omits results that fall outside the perimeter of the grid
+                                                           0 <= x_index + x_mod < self.x_dim and
+                                                           0 <= y_index + y_mod < self.y_dim]
+                sum_of_neighbors = sum(self.cellgrid[adj_y_index][adj_x_index]
+                                       for adj_x_index, adj_y_index in adj_coords)
+                new_cellgrid[y_index][x_index] = (1 if sum_of_neighbors == 3
+                                                    else self.cellgrid[y_index][x_index] if sum_of_neighbors == 2
+                                                    else 0)
+        self.cellgrid = new_cellgrid
 
 
 if __name__ == "__main__":
