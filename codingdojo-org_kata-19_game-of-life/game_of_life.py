@@ -18,7 +18,7 @@ parser.add_argument("-v", "--version", action="store_true", default=False, dest=
 parser.add_argument("files", nargs=argparse.REMAINDER, help="Game of life snapshot files")
 
 
-class ParsingError:
+class ParsingError(Exception):
     pass
 
 
@@ -31,8 +31,8 @@ def main():
         exit(0)
 
     input_blocks = get_input(options)
-
     snapshots = [parse_snapshot_file(input_block) for input_block in input_blocks]
+    pass
 
 
 def get_input(options):
@@ -74,17 +74,18 @@ def parse_snapshot_file(snapshot_text):
     generation = int(generation_match.group(1))
 
     dimensions_line = snapshot_lines.pop(0)
-    dimensions_match = re.match(r"^Generations (\d+):$", dimensions_line)
+    dimensions_match = re.match(r"^(\d+) (\d+)$", dimensions_line)
     if dimensions_match is None:
         raise ParsingError("Could not parse dimensions from first line of input")
     x_dim, y_dim = map(int, dimensions_match.group(1, 2))
 
     cellgrid = [[True if char == "*" else False if char == "." else char
                  for char in snapshot_line]
-                for snapshot_line in snapshot_text]
+                for snapshot_line in snapshot_lines]
+
     if len(cellgrid) != y_dim:
         raise ParsingError("number of rows of cell grid not equal to declared vertical dimension")
-    elif not all(len(cellgrid_row for cellgrid_row in cellgrid)):
+    elif not all(len(cellgrid_row) == x_dim for cellgrid_row in cellgrid):
         raise ParsingError("some rows in cell grid not of the declared horizontal dimension")
     elif not all(cellval is True or cellval is False for cellgrid_row in cellgrid for cellval in cellgrid_row):
         raise ParsingError("some characters in cell grid rows are not either '.' or '*'")
@@ -122,3 +123,7 @@ class Game_of_Life_Snapshot:
                                  for cell in cellgrid_row])
                    for cellgrid_row in self.cellgrid]
         return str.join("\n", retval)
+
+
+if __name__ == "__main__":
+    main()
