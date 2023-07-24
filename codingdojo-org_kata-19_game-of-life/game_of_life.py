@@ -8,6 +8,8 @@ import select
 import sys
 
 
+__all__ = "ParsingError", "parse_snapshot_file", "Game_of_Life_Snapshot"
+
 __version__ = "0.1"
 
 parser = argparse.ArgumentParser("titlecase")
@@ -114,6 +116,8 @@ class Game_of_Life_Snapshot:
             raise ValueError("value for cellgrid must be a list or tuple")
         elif not all(isinstance(elem, (list, tuple)) for elem in value):
             raise ValueError("every element of cellgrid must be a list or tuple")
+        elif len(value) != self.y_dim or any(len(row) != self.x_dim for row in value):
+            raise ValueError("cellgrid argument not of dimensions given by x_dim and y_dim arguments")
 
     generation = attr.ib(type=int, validator=attr.validators.and_(attr.validators.instance_of(int),
                                                                   _validate_int_param))
@@ -122,7 +126,10 @@ class Game_of_Life_Snapshot:
     y_dim = attr.ib(type=int, validator=attr.validators.and_(attr.validators.instance_of(int),
                                                              _validate_int_param))
     cellgrid = attr.ib(type=list, validator=attr.validators.and_(attr.validators.instance_of((list, tuple)),
-                                                                 _validate_cellgrid))
+                                                               _validate_cellgrid))
+
+    def __attrs_post_init__(self):
+        self.cellgrid = tuple(tuple(row) for row in self.cellgrid)
 
     def __str__(self):
         retvals = [f"Generation {self.generation}:",
@@ -165,7 +172,7 @@ class Game_of_Life_Snapshot:
                 new_cellgrid[y_index][x_index] = (1 if sum_of_neighbors == 3
                                                     else self.cellgrid[y_index][x_index] if sum_of_neighbors == 2
                                                     else 0)
-        self.cellgrid = new_cellgrid
+        self.cellgrid = tuple(tuple(row) for row in new_cellgrid)
 
 
 if __name__ == "__main__":
