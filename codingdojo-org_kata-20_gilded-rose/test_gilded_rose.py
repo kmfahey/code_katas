@@ -12,6 +12,8 @@ def test_update_quality_plus_5_dexterity_vest():
     gilded_rose_obj = GildedRose([new_item_obj1])
     gilded_rose_obj.update_quality()
     assert new_item_obj1.sell_in == -2
+    assert new_item_obj1.quality == 0
+
 
     argl = ('+5 Dexterity Vest', -1, 25)
     item_obj2 = Item(*argl)
@@ -35,6 +37,8 @@ def test_update_quality_plus_5_dexterity_vest():
     gilded_rose_obj = GildedRose([new_item_obj4])
     gilded_rose_obj.update_quality()
     assert new_item_obj4.sell_in == 4
+    assert new_item_obj4.quality == 0
+
 
     argl = ('+5 Dexterity Vest', 5, 25)
     item_obj5 = Item(*argl)
@@ -122,6 +126,7 @@ def test_update_quality_aged_brie():
     gilded_rose_obj = GildedRose([new_item_obj3])
     gilded_rose_obj.update_quality()
     assert new_item_obj3.sell_in == -2
+    assert new_item_obj3.quality == 50
 
     argl = ('Aged Brie', 5, 0)
     item_obj4 = Item(*argl)
@@ -145,6 +150,7 @@ def test_update_quality_aged_brie():
     gilded_rose_obj = GildedRose([new_item_obj6])
     gilded_rose_obj.update_quality()
     assert new_item_obj6.sell_in == 4
+    assert new_item_obj6.quality == 50
 
     argl = ('Aged Brie', 10, 0)
     item_obj7 = Item(*argl)
@@ -168,6 +174,7 @@ def test_update_quality_aged_brie():
     gilded_rose_obj = GildedRose([new_item_obj9])
     gilded_rose_obj.update_quality()
     assert new_item_obj9.sell_in == 9
+    assert new_item_obj9.quality == 50
 
     argl = ('Aged Brie', 15, 0)
     item_obj10 = Item(*argl)
@@ -191,6 +198,7 @@ def test_update_quality_aged_brie():
     gilded_rose_obj = GildedRose([new_item_obj12])
     gilded_rose_obj.update_quality()
     assert new_item_obj12.sell_in == 14
+    assert new_item_obj12.quality == 50
 
 
 def test_update_quality_backstage_passes_to_a_tafkal80etc_concert():
@@ -239,6 +247,7 @@ def test_update_quality_backstage_passes_to_a_tafkal80etc_concert():
     gilded_rose_obj = GildedRose([new_item_obj6])
     gilded_rose_obj.update_quality()
     assert new_item_obj6.sell_in == 4
+    assert new_item_obj6.quality == 50
 
     argl = ('Backstage passes to a TAFKAL80ETC concert', 10, 0)
     item_obj7 = Item(*argl)
@@ -262,6 +271,7 @@ def test_update_quality_backstage_passes_to_a_tafkal80etc_concert():
     gilded_rose_obj = GildedRose([new_item_obj9])
     gilded_rose_obj.update_quality()
     assert new_item_obj9.sell_in == 9
+    assert new_item_obj9.quality == 50
 
     argl = ('Backstage passes to a TAFKAL80ETC concert', 15, 0)
     item_obj10 = Item(*argl)
@@ -285,6 +295,7 @@ def test_update_quality_backstage_passes_to_a_tafkal80etc_concert():
     gilded_rose_obj = GildedRose([new_item_obj12])
     gilded_rose_obj.update_quality()
     assert new_item_obj12.sell_in == 14
+    assert new_item_obj12.quality == 50
 
 
 def test_update_quality_conjured_mana_cake():
@@ -294,6 +305,7 @@ def test_update_quality_conjured_mana_cake():
     gilded_rose_obj = GildedRose([new_item_obj1])
     gilded_rose_obj.update_quality()
     assert new_item_obj1.sell_in == -2
+    assert new_item_obj1.quality == 0
 
     argl = ('Conjured Mana Cake', -1, 25)
     item_obj2 = Item(*argl)
@@ -301,7 +313,7 @@ def test_update_quality_conjured_mana_cake():
     gilded_rose_obj = GildedRose([new_item_obj2])
     gilded_rose_obj.update_quality()
     assert new_item_obj2.sell_in == -2
-    assert new_item_obj2.quality == 23
+    assert new_item_obj2.quality == 21
 
     argl = ('Conjured Mana Cake', -1, 50)
     item_obj3 = Item(*argl)
@@ -309,7 +321,7 @@ def test_update_quality_conjured_mana_cake():
     gilded_rose_obj = GildedRose([new_item_obj3])
     gilded_rose_obj.update_quality()
     assert new_item_obj3.sell_in == -2
-    assert new_item_obj3.quality == 48
+    assert new_item_obj3.quality == 46
 
     argl = ('Conjured Mana Cake', 5, 0)
     item_obj4 = Item(*argl)
@@ -317,6 +329,7 @@ def test_update_quality_conjured_mana_cake():
     gilded_rose_obj = GildedRose([new_item_obj4])
     gilded_rose_obj.update_quality()
     assert new_item_obj4.sell_in == 4
+    assert new_item_obj1.quality == 0
 
     argl = ('Conjured Mana Cake', 5, 25)
     item_obj5 = Item(*argl)
@@ -324,7 +337,7 @@ def test_update_quality_conjured_mana_cake():
     gilded_rose_obj = GildedRose([new_item_obj5])
     gilded_rose_obj.update_quality()
     assert new_item_obj5.sell_in == 4
-    assert new_item_obj5.quality == 24
+    assert new_item_obj5.quality == 23
 
     argl = ('Conjured Mana Cake', 5, 50)
     item_obj6 = Item(*argl)
@@ -332,7 +345,7 @@ def test_update_quality_conjured_mana_cake():
     gilded_rose_obj = GildedRose([new_item_obj6])
     gilded_rose_obj.update_quality()
     assert new_item_obj6.sell_in == 4
-    assert new_item_obj6.quality == 49
+    assert new_item_obj6.quality == 48
 
     argl = ('Conjured Mana Cake', 10, 0)
     item_obj7 = Item(*argl)
@@ -340,6 +353,7 @@ def test_update_quality_conjured_mana_cake():
     gilded_rose_obj = GildedRose([new_item_obj7])
     gilded_rose_obj.update_quality()
     assert new_item_obj7.sell_in == 9
+    assert new_item_obj1.quality == 0
 
     argl = ('Conjured Mana Cake', 10, 25)
     item_obj8 = Item(*argl)
@@ -347,7 +361,7 @@ def test_update_quality_conjured_mana_cake():
     gilded_rose_obj = GildedRose([new_item_obj8])
     gilded_rose_obj.update_quality()
     assert new_item_obj8.sell_in == 9
-    assert new_item_obj8.quality == 24
+    assert new_item_obj8.quality == 23
 
     argl = ('Conjured Mana Cake', 10, 50)
     item_obj9 = Item(*argl)
@@ -355,7 +369,7 @@ def test_update_quality_conjured_mana_cake():
     gilded_rose_obj = GildedRose([new_item_obj9])
     gilded_rose_obj.update_quality()
     assert new_item_obj9.sell_in == 9
-    assert new_item_obj9.quality == 49
+    assert new_item_obj9.quality == 48
 
     argl = ('Conjured Mana Cake', 15, 0)
     item_obj10 = Item(*argl)
@@ -363,6 +377,7 @@ def test_update_quality_conjured_mana_cake():
     gilded_rose_obj = GildedRose([new_item_obj10])
     gilded_rose_obj.update_quality()
     assert new_item_obj10.sell_in == 14
+    assert new_item_obj1.quality == 0
 
     argl = ('Conjured Mana Cake', 15, 25)
     item_obj11 = Item(*argl)
@@ -370,7 +385,7 @@ def test_update_quality_conjured_mana_cake():
     gilded_rose_obj = GildedRose([new_item_obj11])
     gilded_rose_obj.update_quality()
     assert new_item_obj11.sell_in == 14
-    assert new_item_obj11.quality == 24
+    assert new_item_obj11.quality == 23
 
     argl = ('Conjured Mana Cake', 15, 50)
     item_obj12 = Item(*argl)
@@ -378,5 +393,99 @@ def test_update_quality_conjured_mana_cake():
     gilded_rose_obj = GildedRose([new_item_obj12])
     gilded_rose_obj.update_quality()
     assert new_item_obj12.sell_in == 14
-    assert new_item_obj12.quality == 49
+    assert new_item_obj12.quality == 48
+
+
+def test_update_quality_sulfuras_hand_of_ragnaros():
+    argl = ('Sulfuras, Hand of Ragnaros', -1, 0) # 1
+    item_obj1 = Item(*argl)
+    new_item_obj1 = Item(*argl)
+    gilded_rose_obj = GildedRose([new_item_obj1])
+    gilded_rose_obj.update_quality()
+    assert new_item_obj1.sell_in == -1
+
+    argl = ('Sulfuras, Hand of Ragnaros', -1, 25) # 2
+    item_obj2 = Item(*argl)
+    new_item_obj2 = Item(*argl)
+    gilded_rose_obj = GildedRose([new_item_obj2])
+    gilded_rose_obj.update_quality()
+    assert new_item_obj2.sell_in == -1
+    assert new_item_obj2.quality == 25
+
+    argl = ('Sulfuras, Hand of Ragnaros', -1, 50) # 3
+    item_obj3 = Item(*argl)
+    new_item_obj3 = Item(*argl)
+    gilded_rose_obj = GildedRose([new_item_obj3])
+    gilded_rose_obj.update_quality()
+    assert new_item_obj3.sell_in == -1
+    assert new_item_obj3.quality == 50
+
+    argl = ('Sulfuras, Hand of Ragnaros', 5, 0) # 4
+    item_obj4 = Item(*argl)
+    new_item_obj4 = Item(*argl)
+    gilded_rose_obj = GildedRose([new_item_obj4])
+    gilded_rose_obj.update_quality()
+    assert new_item_obj4.sell_in == 5
+
+    argl = ('Sulfuras, Hand of Ragnaros', 5, 25) # 5
+    item_obj5 = Item(*argl)
+    new_item_obj5 = Item(*argl)
+    gilded_rose_obj = GildedRose([new_item_obj5])
+    gilded_rose_obj.update_quality()
+    assert new_item_obj5.sell_in == 5
+    assert new_item_obj5.quality == 25
+
+    argl = ('Sulfuras, Hand of Ragnaros', 5, 50) # 6
+    item_obj6 = Item(*argl)
+    new_item_obj6 = Item(*argl)
+    gilded_rose_obj = GildedRose([new_item_obj6])
+    gilded_rose_obj.update_quality()
+    assert new_item_obj6.sell_in == 5
+    assert new_item_obj6.quality == 50
+
+    argl = ('Sulfuras, Hand of Ragnaros', 10, 0) # 7
+    item_obj7 = Item(*argl)
+    new_item_obj7 = Item(*argl)
+    gilded_rose_obj = GildedRose([new_item_obj7])
+    gilded_rose_obj.update_quality()
+    assert new_item_obj7.sell_in == 10
+
+    argl = ('Sulfuras, Hand of Ragnaros', 10, 25) # 8
+    item_obj8 = Item(*argl)
+    new_item_obj8 = Item(*argl)
+    gilded_rose_obj = GildedRose([new_item_obj8])
+    gilded_rose_obj.update_quality()
+    assert new_item_obj8.sell_in == 10
+    assert new_item_obj8.quality == 25
+
+    argl = ('Sulfuras, Hand of Ragnaros', 10, 50) # 9
+    item_obj9 = Item(*argl)
+    new_item_obj9 = Item(*argl)
+    gilded_rose_obj = GildedRose([new_item_obj9])
+    gilded_rose_obj.update_quality()
+    assert new_item_obj9.sell_in == 10
+    assert new_item_obj9.quality == 50
+
+    argl = ('Sulfuras, Hand of Ragnaros', 15, 0) # 10
+    item_obj10 = Item(*argl)
+    new_item_obj10 = Item(*argl)
+    gilded_rose_obj = GildedRose([new_item_obj10])
+    gilded_rose_obj.update_quality()
+    assert new_item_obj10.sell_in == 15
+
+    argl = ('Sulfuras, Hand of Ragnaros', 15, 25) # 11
+    item_obj11 = Item(*argl)
+    new_item_obj11 = Item(*argl)
+    gilded_rose_obj = GildedRose([new_item_obj11])
+    gilded_rose_obj.update_quality()
+    assert new_item_obj11.sell_in == 15
+    assert new_item_obj11.quality == 25
+
+    argl = ('Sulfuras, Hand of Ragnaros', 15, 50) # 12
+    item_obj12 = Item(*argl)
+    new_item_obj12 = Item(*argl)
+    gilded_rose_obj = GildedRose([new_item_obj12])
+    gilded_rose_obj.update_quality()
+    assert new_item_obj12.sell_in == 15
+    assert new_item_obj12.quality == 50
 
